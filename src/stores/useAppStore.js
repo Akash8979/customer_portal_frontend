@@ -1,6 +1,15 @@
 import { create } from 'zustand';
 
 const useAppStore = create((set, get) => ({
+  // ── Theme ─────────────────────────────────────────────────────────────────
+  theme: localStorage.getItem('theme') || 'dark',
+  toggleTheme: () => {
+    const next = get().theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    document.documentElement.setAttribute('data-theme', next === 'light' ? 'light' : '');
+    set({ theme: next });
+  },
+
   // ── Auth ──────────────────────────────────────────────────────────────────
   user: null,
   setUser: (user) => set({ user }),

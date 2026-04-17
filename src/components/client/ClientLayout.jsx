@@ -4,6 +4,7 @@ import Avatar from '../shared/Avatar';
 import AIOutputPanel from '../shared/AIOutputPanel';
 import ToastContainer from '../shared/Toast';
 import NotificationBell from '../shared/NotificationBell';
+import ThemeToggle from '../shared/ThemeToggle';
 import './ClientLayout.css';
 
 const NAV = [
@@ -63,6 +64,7 @@ export default function ClientLayout() {
         <header className="topbar">
           <div className="topbar-left" />
           <div className="topbar-right">
+            <ThemeToggle />
             <NotificationBell />
           </div>
         </header>
