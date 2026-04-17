@@ -1,0 +1,30 @@
+.client-layout {
+  display: flex; height: 100vh; overflow: hidden;
+}
+.client-sidebar {
+  width: var(--sidebar-width); flex-shrink: 0;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.brand-sub { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.sidebar-brand { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.brand-icon { font-size: 20px; color: var(--amber); }
+.brand-name { font-size: 14px; font-weight: 700; }
+.sidebar-nav { flex: 1; overflow-y: auto; padding: var(--space-3) var(--space-2); display: flex; flex-direction: column; gap: 2px; }
+.nav-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius); color: var(--text-muted); font-size: 13px; font-weight: 500; transition: background var(--transition), color var(--transition); text-decoration: none; }
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item--active { background: rgba(239,159,39,0.1); color: var(--amber); }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.sidebar-footer { padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border); display: flex; align-items: center; gap: var(--space-2); }
+.sidebar-user { display: flex; align-items: center; gap: var(--space-2); flex: 1; min-width: 0; }
+.sidebar-user-info { display: flex; flex-direction: column; min-width: 0; }
+.sidebar-user-name { font-size: 12px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-user-role { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
+.logout-btn { background: none; border: none; color: var(--text-muted); font-size: 16px; padding: 4px; border-radius: var(--radius-sm); }
+.logout-btn:hover { color: var(--red); background: rgba(226,75,74,0.1); }
+.main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: var(--topbar-height); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--space-6); border-bottom: 1px solid var(--border); background: var(--bg-page); }
+.topbar-right { display: flex; align-items: center; gap: var(--space-3); }
+.content { flex: 1; overflow-y: auto; }

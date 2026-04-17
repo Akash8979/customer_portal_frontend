@@ -1,0 +1,8 @@
+.c360-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-4); }
+.ai-actions-grid { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.phase-row { display: flex; align-items: center; gap: var(--space-3); }
+.phase-name { font-size: 12px; color: var(--text-secondary); min-width: 120px; }
+.pct-label { font-size: 20px; font-weight: 700; color: var(--amber); }
+.ticket-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; border-bottom: 1px solid var(--border); }
+.ticket-row:last-child { border-bottom: none; }
+.ticket-title-sm { font-size: 13px; flex: 1; }

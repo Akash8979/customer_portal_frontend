@@ -1,0 +1,22 @@
+.timeline { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.timeline-step {
+  display: flex; gap: var(--space-3); position: relative; padding-bottom: var(--space-4);
+}
+.timeline-step::before {
+  content: ''; position: absolute; left: 7px; top: 16px; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.timeline-step:last-child::before { display: none; }
+.timeline-step:last-child { padding-bottom: 0; }
+
+.timeline-dot {
+  width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
+  background: var(--bg-subtle); border: 2px solid var(--border);
+}
+.timeline-step.done .timeline-dot { background: var(--green); border-color: var(--green); }
+.timeline-step.active .timeline-dot { background: var(--amber); border-color: var(--amber); }
+
+.timeline-content { display: flex; flex-direction: column; gap: 2px; }
+.timeline-label { font-size: 13px; font-weight: 500; }
+.timeline-date { font-size: 11px; color: var(--text-muted); }
+.timeline-note { font-size: 12px; color: var(--text-secondary); }

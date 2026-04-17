@@ -1,0 +1,11 @@
+.raise-form-wrap { display: grid; grid-template-columns: 1fr 280px; gap: var(--space-6); }
+.form-section { display: flex; flex-direction: column; gap: var(--space-5); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+.form-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
+.required { color: var(--red); }
+
+.raise-help { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-5); height: fit-content; }
+.help-title { font-size: 13px; font-weight: 600; margin-bottom: var(--space-3); }
+.help-list { list-style: none; display: flex; flex-direction: column; gap: var(--space-2); }
+.help-list li { font-size: 12px; color: var(--text-muted); padding-left: var(--space-3); position: relative; }
+.help-list li::before { content: '→'; position: absolute; left: 0; color: var(--amber); }

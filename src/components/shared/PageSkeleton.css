@@ -1,0 +1,17 @@
+.skeleton-block {
+  background: linear-gradient(90deg, var(--bg-subtle) 25%, var(--bg-hover) 50%, var(--bg-subtle) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+.page-skeleton { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-6); }
+.skeleton-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+.skeleton-card {
+  display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5);
+  border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-card);
+}
+.skeleton-table { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.skeleton-thead { display: flex; gap: var(--space-5); padding: var(--space-3) var(--space-4); background: var(--bg-subtle); border-bottom: 1px solid var(--border); }
+.skeleton-row { display: flex; gap: var(--space-5); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border); }
+.skeleton-row:last-child { border-bottom: none; }

@@ -1,0 +1,8 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.card--padded { padding: var(--space-5); }
+.card--clickable { cursor: pointer; transition: border-color var(--transition), background var(--transition); }
+.card--clickable:hover { border-color: var(--border-mid); background: var(--bg-hover); }

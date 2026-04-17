@@ -1,0 +1,61 @@
+/* Base resets — design tokens come from styles/tokens.css */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  font-family: var(--font-ui);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root { display: flex; flex-direction: column; }
+
+a { color: inherit; text-decoration: none; }
+
+h1, h2, h3, h4, h5 { line-height: 1.3; font-weight: 700; }
+
+button { cursor: pointer; font-family: inherit; font-size: inherit; }
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  padding: var(--space-2) var(--space-3);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus, select:focus, textarea:focus { border-color: var(--amber); }
+
+input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+textarea { resize: vertical; }
+
+/* Utility classes */
+.page { display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-6); height: 100%; overflow-y: auto; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+.page-title { font-size: 20px; font-weight: 700; }
+.page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-4); }
+
+.filter-bar { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.filter-bar select, .filter-bar input { width: auto; min-width: 140px; }
+
+.ticket-id { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }

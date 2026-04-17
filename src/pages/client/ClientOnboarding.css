@@ -1,0 +1,24 @@
+.onboarding-summary { display: flex; flex-direction: column; gap: var(--space-2); max-width: 400px; }
+.pct-big { font-size: 28px; font-weight: 700; color: var(--amber); }
+.phases-list { display: flex; flex-direction: column; gap: var(--space-5); }
+.phase-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-5); }
+.phase-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
+.phase-num { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--text-dim); margin-right: var(--space-2); }
+.phase-name { font-size: 15px; font-weight: 600; }
+.phase-pct { font-size: 14px; font-weight: 700; color: var(--amber); }
+
+.task-list { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
+.task-row { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius); background: var(--bg-subtle); }
+.task--done { opacity: 0.6; }
+.task--blocked { border-left: 3px solid var(--red); }
+.check-done { color: var(--green); font-size: 16px; }
+.check-pending { color: var(--text-dim); }
+.check-btn { background: none; border: none; color: var(--amber); font-size: 16px; }
+.task-info { flex: 1; }
+.task-title { font-size: 13px; font-weight: 500; }
+.task-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.task-meta { display: flex; gap: var(--space-3); margin-top: var(--space-1); font-size: 11px; color: var(--text-dim); flex-wrap: wrap; }
+.task-owner { padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+.task-owner--client { background: rgba(239,159,39,0.1); color: var(--amber); }
+.task-owner--delivery { background: rgba(55,138,221,0.1); color: var(--blue); }
+.task-blocker-label { color: var(--red); font-weight: 600; }

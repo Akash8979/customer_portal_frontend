@@ -1,0 +1,12 @@
+.client-dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-4); }
+.onboarding-pct { font-size: 32px; font-weight: 700; color: var(--amber); margin-bottom: var(--space-2); }
+.release-row { display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); }
+.release-row:last-child { border-bottom: none; }
+.release-version { font-family: var(--font-mono); font-size: 12px; color: var(--amber); }
+.release-title { font-size: 13px; color: var(--text-secondary); }
+.release-date { font-size: 11px; color: var(--text-dim); }
+.ticket-row { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--space-3) 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+.ticket-row:last-child { border-bottom: none; }
+.ticket-row:hover { opacity: 0.8; }
+.ticket-title-sm { font-size: 13px; font-weight: 500; }
+.ticket-time { font-size: 11px; color: var(--text-dim); }
