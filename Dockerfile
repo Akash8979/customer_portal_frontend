@@ -7,7 +7,7 @@ RUN npm run build
 
 FROM node:20-alpine
 WORKDIR /app
-RUN npm install -g serve
+RUN npm install -g http-server
 COPY --from=builder /app/dist ./dist
-EXPOSE ${PORT:-3000}
-CMD ["sh", "-c", "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}"]
+EXPOSE 3000
+CMD ["sh", "-c", "http-server dist -p ${PORT:-3000} -a 0.0.0.0 --spa -c-1 --cors"]
