@@ -7,11 +7,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/portal/ai-engine': {
-        target: 'http://localhost:9080',
+        target: 'https://customerportalaiengine-production.up.railway.app',
         changeOrigin: true,
       },
       '/portal': {
-        target: 'http://localhost:9090',
+        target: 'https://customerportal-production-aa42.up.railway.app',
         changeOrigin: true,
       },
     },
