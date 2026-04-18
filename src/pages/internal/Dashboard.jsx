@@ -29,8 +29,8 @@ export default function InternalDashboard() {
   });
 
   const { data: onboardingData } = useQuery({
-    queryKey: ['onboarding-list'],
-    queryFn: () => listOnboarding({ page_size: 5 }).then((r) => r.data.data),
+    queryKey: ['onboarding-list-dashboard'],
+    queryFn: () => listOnboarding({ page_size: 5 }).then((r) => r.data.data || []),
   });
 
   if (kpiLoading) return <PageSkeleton />;

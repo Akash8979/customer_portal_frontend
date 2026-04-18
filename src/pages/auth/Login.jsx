@@ -52,7 +52,7 @@ export default function Login() {
             <label>Email</label>
             <input
               type="email"
-              autoComplete="email"
+              autoComplete="off"
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               placeholder="you@company.com"
@@ -63,7 +63,7 @@ export default function Login() {
             <label>Password</label>
             <input
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               value={form.password}
               onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               placeholder="••••••••"
