@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getTicket, getComments } from '../../api/tickets';
+import { listMentionUsers } from '../../api/users';
 import { useAI } from '../../hooks/useAI';
 import Badge from '../../components/shared/Badge';
 import SlaTimer from '../../components/shared/SlaTimer';
@@ -12,17 +13,9 @@ import './ClientTicketDetail.css';
 
 const STATUS_FLOW = ['OPEN','TRIAGED','ACKNOWLEDGED','IN_PROGRESS','PENDING_CLIENT','PENDING_RELEASE','RESOLVED','CLOSED'];
 
-const USER_MAP = {
-  1: 'Alice Johnson', 2: 'Bob Chen', 3: 'Carol Davis',
-  4: 'Dave Patel', 5: 'Eve Wilson', 6: 'Frank Lee',
-  10: 'Jack Nguyen', 11: 'Kate Svensson', 12: 'Liam Okonkwo',
-  13: 'Maya Sharma', 14: 'Noah Fernandez', 15: 'Olivia Braun',
-  19: 'Sam Torres', 20: 'Tina Rahman', 21: 'Umar Hassan',
-  22: 'Vera Morozova', 23: 'Will Andersen', 25: 'Yusuf Al-Rashid',
-};
-
-function isInternalUser(userId) {
-  return userId >= 19;
+function isInternalUser(userId, usersData) {
+  const u = usersData.find((x) => x.user_id === userId);
+  return u ? !u.tenant_id : false;
 }
 
 export default function ClientTicketDetail() {
@@ -30,6 +23,13 @@ export default function ClientTicketDetail() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const ai = useAI();
+
+  const { data: usersData = [] } = useQuery({
+    queryKey: ['mention-users'],
+    queryFn: () => listMentionUsers().then((r) => r.data.data || []),
+    staleTime: 5 * 60 * 1000,
+  });
+  const userMap = Object.fromEntries(usersData.map((u) => [u.user_id, u.user_name]));
 
   const { data: ticket, isLoading } = useQuery({
     queryKey: ['ticket', id],
@@ -83,8 +83,8 @@ export default function ClientTicketDetail() {
           ) : (
             <div className="comment-list">
               {visibleComments.map((c) => {
-                const name = USER_MAP[c.user_id] || `User #${c.user_id}`;
-                const internal = isInternalUser(c.user_id);
+                const name = userMap[c.user_id] || `User #${c.user_id}`;
+                const internal = isInternalUser(c.user_id, usersData);
                 return (
                   <div key={c.id} className={`comment-item ${internal ? 'comment--agent' : 'comment--client'}`}>
                     <Avatar name={name} size={32} />
@@ -111,7 +111,7 @@ export default function ClientTicketDetail() {
                       {c.mentions?.length > 0 && (
                         <div className="comment-mentions">
                           {c.mentions.map((m) => (
-                            <span key={m.id} className="mention-chip">@{USER_MAP[m.mentioned_user_id] || m.mentioned_user_id}</span>
+                            <span key={m.id} className="mention-chip">@{userMap[m.mentioned_user_id] || m.mentioned_user_id}</span>
                           ))}
                         </div>
                       )}

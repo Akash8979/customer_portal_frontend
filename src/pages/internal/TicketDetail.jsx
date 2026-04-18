@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTicket, getComments, updateStatus } from '../../api/tickets';
+import { listMentionUsers } from '../../api/users';
 import { useAI } from '../../hooks/useAI';
 import Badge from '../../components/shared/Badge';
 import SlaTimer from '../../components/shared/SlaTimer';
@@ -12,15 +13,6 @@ import CommentCompose from '../../components/shared/CommentCompose';
 import { relativeTime, fullDate } from '../../utils/formatters';
 import './TicketDetail.css';
 
-const USER_MAP = {
-  1: 'Alice Johnson', 2: 'Bob Chen', 3: 'Carol Davis',
-  4: 'Dave Patel', 5: 'Eve Wilson', 6: 'Frank Lee',
-  10: 'Jack Nguyen', 11: 'Kate Svensson', 12: 'Liam Okonkwo',
-  13: 'Maya Sharma', 14: 'Noah Fernandez', 15: 'Olivia Braun',
-  19: 'Sam Torres', 20: 'Tina Rahman', 21: 'Umar Hassan',
-  22: 'Vera Morozova', 23: 'Will Andersen', 25: 'Yusuf Al-Rashid',
-};
-
 const STATUS_FLOW = ['OPEN','TRIAGED','ACKNOWLEDGED','IN_PROGRESS','PENDING_CLIENT','PENDING_RELEASE','RESOLVED','CLOSED'];
 
 export default function TicketDetail() {
@@ -28,6 +20,13 @@ export default function TicketDetail() {
   const qc = useQueryClient();
   const ai = useAI();
   const [tab, setTab] = useState('thread');
+
+  const { data: usersData = [] } = useQuery({
+    queryKey: ['mention-users'],
+    queryFn: () => listMentionUsers().then((r) => r.data.data || []),
+    staleTime: 5 * 60 * 1000,
+  });
+  const userMap = Object.fromEntries(usersData.map((u) => [u.user_id, u.user_name]));
 
   const { data: ticket, isLoading } = useQuery({
     queryKey: ['ticket', id],
@@ -83,7 +82,7 @@ export default function TicketDetail() {
           {comments
             .filter((c) => tab === 'internal' ? true : !c.is_internal)
             .map((c) => {
-              const name = USER_MAP[c.user_id] || `User #${c.user_id}`;
+              const name = userMap[c.user_id] || `User #${c.user_id}`;
               return (
                 <div key={c.id} className={`comment-item ${c.is_internal ? 'comment--internal' : ''}`}>
                   <Avatar name={name} size={32} />
@@ -106,7 +105,7 @@ export default function TicketDetail() {
                     {c.mentions?.length > 0 && (
                       <div className="comment-mentions">
                         {c.mentions.map((m) => (
-                          <span key={m.id} className="mention-chip">@{USER_MAP[m.mentioned_user_id] || m.mentioned_user_id}</span>
+                          <span key={m.id} className="mention-chip">@{userMap[m.mentioned_user_id] || m.mentioned_user_id}</span>
                         ))}
                       </div>
                     )}

@@ -87,8 +87,8 @@ const EMPTY_FORM = { user_name: '', email: '', password: '', role: 'CLIENT_USER'
 export default function UserManagement() {
   const qc = useQueryClient();
   const { addToast } = useAppStore();
-  const { user: me, hasRole } = useAuth();
-  const isAdmin = hasRole('ADMIN');
+  const { user: me, is } = useAuth();
+  const isAdmin = is('ADMIN');
 
   const [roleFilter, setRoleFilter] = useState('');
   const [page, setPage] = useState(1);
