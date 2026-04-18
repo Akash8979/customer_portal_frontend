@@ -15,3 +15,4 @@
 .kpi-trend--down { color: var(--green); }
 .kpi-trend--flat { color: var(--text-muted); }
 .kpi-icon { font-size: 20px; margin-bottom: var(--space-2); }
+.kpi-sublabel { font-size: 11px; color: var(--text-dim); margin-top: 2px; }

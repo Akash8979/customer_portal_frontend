@@ -2,59 +2,59 @@
 
 /* ── Dark mode (default) ──────────────────────────────────────── */
 :root {
-  --bg-page:     #0e0f11;
-  --bg-sidebar:  #111215;
-  --bg-card:     #16171a;
-  --bg-hover:    #1a1b1e;
-  --bg-subtle:   #1e1f22;
-  --bg-input:    #1a1b1e;
+  --bg-page:     #0b0e18;
+  --bg-sidebar:  #0f1220;
+  --bg-card:     #141826;
+  --bg-hover:    #1a1f30;
+  --bg-subtle:   #1f2538;
+  --bg-input:    #1a1f30;
 
-  --border:      #2a2b2e;
-  --border-mid:  #3a3b3e;
-  --border-focus:#EF9F27;
+  --border:      #2a3050;
+  --border-mid:  #3a4268;
+  --border-focus:#4F8EF7;
 
-  --text-primary:   #e8e6e0;
-  --text-secondary: #d3d1c7;
-  --text-muted:     #888780;
-  --text-dim:       #5F5E5A;
+  --text-primary:   #e6eaf6;
+  --text-secondary: #b0bcd8;
+  --text-muted:     #6b7899;
+  --text-dim:       #424d6e;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-  --shadow:    0 2px 8px rgba(0,0,0,0.5);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.45);
+  --shadow:    0 2px 8px rgba(0,0,0,0.55);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.65);
 }
 
 /* ── Light mode ───────────────────────────────────────────────── */
 [data-theme="light"] {
-  --bg-page:     #f4f3ef;
+  --bg-page:     #f0f3fa;
   --bg-sidebar:  #ffffff;
   --bg-card:     #ffffff;
-  --bg-hover:    #eeece8;
-  --bg-subtle:   #e9e7e2;
+  --bg-hover:    #e6ecf8;
+  --bg-subtle:   #dce4f5;
   --bg-input:    #ffffff;
 
-  --border:      #dedad3;
-  --border-mid:  #cac6bc;
-  --border-focus:#EF9F27;
+  --border:      #c8d3ea;
+  --border-mid:  #adbad8;
+  --border-focus:#4F8EF7;
 
-  --text-primary:   #1a1917;
-  --text-secondary: #3a3830;
-  --text-muted:     #6b6960;
-  --text-dim:       #9e9b91;
+  --text-primary:   #0b0e18;
+  --text-secondary: #1e2a4a;
+  --text-muted:     #4a5880;
+  --text-dim:       #7a8aaa;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow:    0 2px 8px rgba(0,0,0,0.10);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.14);
+  --shadow-sm: 0 1px 3px rgba(15,30,80,0.08);
+  --shadow:    0 2px 8px rgba(15,30,80,0.10);
+  --shadow-lg: 0 8px 24px rgba(15,30,80,0.14);
 }
 
 /* ── Shared — brand, spacing, typography (both themes) ───────── */
 :root, [data-theme="light"] {
-  --amber:       #EF9F27;
-  --amber-hover: #d48e1f;
-  --green:       #1D9E75;
-  --blue:        #378ADD;
-  --red:         #E24B4A;
-  --purple:      #7F77DD;
-  --orange:      #D85A30;
+  --amber:       #4F8EF7;
+  --amber-hover: #3d7ae8;
+  --green:       #10B98A;
+  --blue:        #60A5FA;
+  --red:         #F87171;
+  --purple:      #A78BFA;
+  --orange:      #FB923C;
 
   --color-success: var(--green);
   --color-error:   var(--red);
