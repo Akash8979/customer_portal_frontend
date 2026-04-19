@@ -10,3 +10,4 @@ export const getComments      = (id)        => portalClient.get(`/portal/tickets
 export const createComment    = (data)      => portalClient.post('/portal/comments', data);
 export const updateComment    = (id, data)  => portalClient.patch(`/portal/comments/${id}/update`, data);
 export const uploadAttachment = (data)      => portalClient.post('/portal/attachments', data);
+export const getTicketHistory = (id)        => portalClient.get(`/portal/tickets/${id}/history`);

@@ -1,0 +1,101 @@
+.fsel {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ── Trigger button ── */
+.fsel-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border-mid);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease;
+  white-space: nowrap;
+}
+
+.fsel-trigger:hover {
+  border-color: var(--text-dim);
+  color: var(--text-primary);
+}
+
+.fsel-chevron {
+  flex-shrink: 0;
+  color: var(--text-dim);
+  transition: transform 180ms ease;
+}
+
+/* Active filter — value is set */
+.fsel--active .fsel-trigger {
+  border-color: var(--amber);
+  color: var(--amber);
+  background-color: color-mix(in srgb, var(--amber) 8%, transparent);
+  font-weight: 600;
+}
+.fsel--active .fsel-chevron { color: var(--amber); }
+
+/* Open state */
+.fsel--open .fsel-trigger {
+  border-color: var(--border-focus);
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+.fsel--open .fsel-chevron { transform: rotate(180deg); }
+
+/* ── Dropdown panel ── */
+.fsel-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 200;
+  min-width: 180px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
+  padding: 4px;
+  animation: fsel-in 120ms ease;
+}
+
+@keyframes fsel-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Option ── */
+.fsel-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease;
+}
+
+.fsel-option:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.fsel-option--selected {
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 8%, transparent);
+}
+
+.fsel-option--selected svg {
+  color: var(--amber);
+  flex-shrink: 0;
+}

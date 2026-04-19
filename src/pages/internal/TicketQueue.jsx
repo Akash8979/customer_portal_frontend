@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { listTickets, updateStatus } from '../../api/tickets';
-import { useAI } from '../../hooks/useAI';
 import DataTable from '../../components/shared/DataTable';
 import Badge from '../../components/shared/Badge';
 import SlaTimer from '../../components/shared/SlaTimer';
@@ -19,8 +18,6 @@ export default function TicketQueue() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { addToast } = useAppStore();
-  const ai = useAI();
-
   const [filters, setFilters] = useState({ status: '', priority: '', category: '', search: '' });
   const [page, setPage] = useState(1);
 
@@ -51,11 +48,6 @@ export default function TicketQueue() {
         <div>
           <h1 className="page-title">Ticket Queue</h1>
           <p className="page-subtitle">{data?.total ?? 0} tickets</p>
-        </div>
-        <div className="header-actions">
-          <Button variant="ai" size="sm" onClick={() => ai.agentRun({ user_prompt: 'Triage all new tickets — classify and prioritise each one', context_data: {} })}>
-            ✦ Triage All New
-          </Button>
         </div>
       </div>
 

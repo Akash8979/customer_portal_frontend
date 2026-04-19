@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { useAI } from '../../hooks/useAI';
+import {
+  Ticket, Zap, Settings2, CheckCircle2,
+  Rocket, CalendarDays, Ban, Timer,
+  ListChecks, Package, Lightbulb,
+} from 'lucide-react';
 import { getTicketKpis, listTickets } from '../../api/tickets';
 import { listOnboarding, getOnboarding } from '../../api/onboarding';
 import { listReleases, listFeatureRequests } from '../../api/releases';
@@ -19,16 +22,9 @@ function daysUntil(dateStr) {
   return Math.ceil((new Date(dateStr) - Date.now()) / 86400000);
 }
 
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-}
 
 export default function ClientDashboard() {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const ai = useAI();
-
   const { data: kpi } = useQuery({
     queryKey: ['ticket-kpis'],
     queryFn: () => getTicketKpis().then((r) => r.data.data),
@@ -79,24 +75,6 @@ export default function ClientDashboard() {
   return (
     <div className="page">
 
-      {/* ── Hero ── */}
-      <div className="dash-hero">
-        <div>
-          <h1 className="page-title">{greeting()}, {user?.user_name?.split(' ')[0]}</h1>
-          <p className="page-subtitle">{user?.tenant_name} · Customer Portal</p>
-        </div>
-        <Button
-          variant="ai"
-          size="sm"
-          onClick={() => ai.agentRun({
-            user_prompt: 'Give me a full account summary: open tickets, SLA status, onboarding progress, blocked tasks, and anything that needs my attention today.',
-            context_data: { kpis: kpi, onboarding },
-          })}
-        >
-          ✦ AI Briefing
-        </Button>
-      </div>
-
       {/* ── KPIs: Support ── */}
       <div className="kpi-section">
         <div className="kpi-section-label">Support Overview</div>
@@ -105,28 +83,28 @@ export default function ClientDashboard() {
             label="Open Tickets"
             value={kpi?.by_status?.open ?? 0}
             accent="var(--blue)"
-            icon="🎫"
+            icon={<Ticket size={18} />}
             sublabel={`${totalActive} active total`}
           />
           <KpiTile
             label="Needs Your Input"
             value={kpi?.by_status?.pending_client ?? 0}
             accent="var(--orange)"
-            icon="⚡"
+            icon={<Zap size={18} />}
             sublabel="Awaiting your response"
           />
           <KpiTile
             label="In Progress"
             value={kpi?.by_status?.in_progress ?? 0}
             accent="var(--amber)"
-            icon="⚙️"
+            icon={<Settings2 size={18} />}
             sublabel="Being worked on"
           />
           <KpiTile
             label="Resolved"
             value={kpi?.by_status?.resolved ?? 0}
             accent="var(--green)"
-            icon="✓"
+            icon={<CheckCircle2 size={18} />}
             sublabel={`${kpi?.total ?? 0} total raised`}
           />
         </div>
@@ -140,7 +118,7 @@ export default function ClientDashboard() {
             label="Onboarding Progress"
             value={`${onboarding?.overall_completion_pct ?? 0}%`}
             accent="var(--green)"
-            icon="🚀"
+            icon={<Rocket size={18} />}
             sublabel={
               onboarding?.health_score
                 ? `Health: ${onboarding.health_score.replace(/_/g, ' ')}`
@@ -155,21 +133,21 @@ export default function ClientDashboard() {
                 : daysToGoLive
             }
             accent={isGoLiveUrgent ? 'var(--orange)' : 'var(--purple)'}
-            icon="📅"
+            icon={<CalendarDays size={18} />}
             sublabel={onboarding?.estimated_go_live ? shortDate(onboarding.estimated_go_live) : 'No date set'}
           />
           <KpiTile
             label="Blocked Tasks"
             value={blockedTasks}
             accent={blockedTasks > 0 ? 'var(--red)' : 'var(--text-muted)'}
-            icon={blockedTasks > 0 ? '🚫' : '✓'}
+            icon={<Ban size={18} />}
             sublabel={blockedTasks > 0 ? 'Need attention' : 'All clear'}
           />
           <KpiTile
             label="SLA At Risk"
             value={slaAtRisk}
             accent={slaAtRisk > 0 ? 'var(--red)' : 'var(--green)'}
-            icon={slaAtRisk > 0 ? '⚠️' : '✓'}
+            icon={<Timer size={18} />}
             sublabel={slaAtRisk > 0 ? 'Breaching in < 4h' : 'All on track'}
           />
         </div>
@@ -181,7 +159,7 @@ export default function ClientDashboard() {
         {/* Tickets */}
         <Card>
           <div className="section-header">
-            <h2 className="section-title">Recent Tickets</h2>
+            <h2 className="section-title"><Ticket size={15} className="section-title-icon" />Recent Tickets</h2>
             <Button variant="ghost" size="sm" onClick={() => navigate('/client/tickets')}>View all</Button>
           </div>
 
@@ -219,7 +197,7 @@ export default function ClientDashboard() {
         {/* Onboarding */}
         <Card>
           <div className="section-header">
-            <h2 className="section-title">Onboarding Tracker</h2>
+            <h2 className="section-title"><ListChecks size={15} className="section-title-icon" />Onboarding Tracker</h2>
             <Button variant="ghost" size="sm" onClick={() => navigate('/client/onboarding')}>
               Full detail
             </Button>
@@ -248,7 +226,7 @@ export default function ClientDashboard() {
 
               <div className="phases-mini">
                 {(onboarding.phases || []).slice(0, 5).map((p) => (
-                  <div key={p.id} className="phase-mini-row">
+                  <div key={p.id} className={`phase-mini-row phase-mini-row--${(p.status || 'NOT_STARTED').toLowerCase()}`}>
                     <div className="phase-mini-left">
                       <span className="phase-mini-num">P{p.order}</span>
                       <span className="phase-mini-name">{p.name}</span>
@@ -285,7 +263,7 @@ export default function ClientDashboard() {
           {/* Releases */}
           <Card>
             <div className="section-header">
-              <h2 className="section-title">Recent Releases</h2>
+              <h2 className="section-title"><Package size={15} className="section-title-icon" />Recent Releases</h2>
               <Button variant="ghost" size="sm" onClick={() => navigate('/client/releases')}>
                 View all
               </Button>
@@ -308,23 +286,26 @@ export default function ClientDashboard() {
           {/* Feature Requests */}
           <Card>
             <div className="section-header">
-              <h2 className="section-title">Feature Requests</h2>
+              <h2 className="section-title"><Lightbulb size={15} className="section-title-icon" />Feature Requests</h2>
               <Button variant="ghost" size="sm" onClick={() => navigate('/client/roadmap')}>
                 Roadmap
               </Button>
             </div>
             {(featureRequests || []).length > 0
               ? (featureRequests || []).map((fr) => (
-                <div key={fr.id} className="fr-row">
-                  <div className="fr-title">{fr.title}</div>
+                <div key={fr.id} className={`fr-row fr-row--${(fr.status || 'UNDER_REVIEW').toLowerCase()}`}>
+                  <div className="fr-row-left">
+                    <span className="fr-dot" />
+                    <div className="fr-title">{fr.title}</div>
+                  </div>
                   <Badge status={fr.status} />
                 </div>
               ))
               : <p className="dim-text">No requests submitted yet.</p>
             }
             <div className="card-cta-row">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/client/roadmap')}>
-                + Request Feature
+              <Button variant="primary" size="sm" icon={<Lightbulb size={13} />} onClick={() => navigate('/client/roadmap')}>
+                Request a Feature
               </Button>
             </div>
           </Card>

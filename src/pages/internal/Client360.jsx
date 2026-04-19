@@ -2,7 +2,6 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getOnboarding } from '../../api/onboarding';
 import { listTickets } from '../../api/tickets';
-import { useAI } from '../../hooks/useAI';
 import Card from '../../components/shared/Card';
 import Badge from '../../components/shared/Badge';
 import Button from '../../components/shared/Button';
@@ -13,8 +12,6 @@ import './Client360.css';
 
 export default function Client360() {
   const { id } = useParams();
-  const ai = useAI();
-
   const { data: project, isLoading } = useQuery({
     queryKey: ['onboarding', id],
     queryFn: () => getOnboarding(id).then((r) => r.data.data),
@@ -27,15 +24,6 @@ export default function Client360() {
   });
 
   if (isLoading || !project) return <div className="page"><p>Loading…</p></div>;
-
-  const accountData = {
-    tenant_name: project.tenant_name,
-    assigned_lead: project.assigned_lead,
-    health_score: project.health_score,
-    onboarding_status: project.status,
-    estimated_go_live: project.estimated_go_live,
-    ticket_count: ticketData?.total,
-  };
 
   return (
     <div className="page">
@@ -51,23 +39,6 @@ export default function Client360() {
         </div>
       </div>
 
-      {/* AI Actions */}
-      <Card>
-        <div className="section-header">
-          <h2 className="section-title">✦ AI Actions</h2>
-        </div>
-        <div className="ai-actions-grid">
-          {[
-            { label: 'Account Health', fn: () => ai.accountHealth(accountData) },
-            { label: 'Churn Risk', fn: () => ai.churnRisk(accountData) },
-            { label: 'Draft Outreach', fn: () => ai.draftOutreach({ account_data: accountData, purpose: 'Quarterly check-in and relationship building' }) },
-            { label: 'Generate QBR Summary', fn: () => ai.agentRun({ user_prompt: 'Generate a quarterly business review summary for this client', context_data: accountData }) },
-            { label: 'Create 30-day Plan', fn: () => ai.agentRun({ user_prompt: 'Create a 30-day success plan for this client', context_data: accountData }) },
-          ].map((a) => (
-            <Button key={a.label} variant="ai" size="sm" onClick={a.fn}>✦ {a.label}</Button>
-          ))}
-        </div>
-      </Card>
 
       <div className="c360-grid">
         {/* Account Info */}

@@ -1,24 +1,35 @@
+import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import Avatar from '../shared/Avatar';
-import AIOutputPanel from '../shared/AIOutputPanel';
 import ToastContainer from '../shared/Toast';
 import NotificationBell from '../shared/NotificationBell';
 import ThemeToggle from '../shared/ThemeToggle';
+import FloatingAgent from '../shared/FloatingAgent';
 import './ClientLayout.css';
 
 const NAV = [
-  { to: '/client/dashboard',    label: 'Dashboard',      icon: '⊞' },
-  { to: '/client/tickets',      label: 'My Tickets',     icon: '◫' },
-  { to: '/client/onboarding',   label: 'Onboarding',     icon: '◷' },
-  { to: '/client/roadmap',      label: 'Roadmap',        icon: '◎' },
-  { to: '/client/releases',     label: 'Release Notes',  icon: '◈' },
-  { to: '/client/account',      label: 'Account',        icon: '◡', roles: ['CLIENT_ADMIN'] },
+  { to: '/client/dashboard',  label: 'Dashboard',     icon: '⊞' },
+  { to: '/client/tickets',    label: 'My Tickets',    icon: '◫' },
+  { to: '/client/onboarding', label: 'Onboarding',    icon: '◷' },
+  { to: '/client/roadmap',    label: 'Roadmap',       icon: '◎' },
+  { to: '/client/releases',   label: 'Release Notes', icon: '◈' },
+  { to: '/client/account',    label: 'Account',       icon: '◡', roles: ['CLIENT_ADMIN'] },
 ];
 
 export default function ClientLayout() {
   const { user, logout, is } = useAuth();
   const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem('sidebar_collapsed') === 'true'
+  );
+
+  function toggleSidebar() {
+    setCollapsed((v) => {
+      localStorage.setItem('sidebar_collapsed', String(!v));
+      return !v;
+    });
+  }
 
   async function handleLogout() {
     await logout();
@@ -29,40 +40,55 @@ export default function ClientLayout() {
 
   return (
     <div className="client-layout">
-      <aside className="client-sidebar">
+
+      {/* ── Sidebar ── */}
+      <aside className={`client-sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
         <div className="sidebar-brand">
           <span className="brand-icon">◈</span>
-          <div>
-            <div className="brand-name">{user?.tenant_name || 'Portal'}</div>
-            <div className="brand-sub">Customer Portal</div>
-          </div>
+          {!collapsed && (
+            <div>
+              <div className="brand-name">{user?.tenant_name || 'Portal'}</div>
+              <div className="brand-sub">Customer Portal</div>
+            </div>
+          )}
         </div>
+
         <nav className="sidebar-nav">
           {visibleNav.map((item) => (
             <NavLink
-              key={item.to} to={item.to}
+              key={item.to}
+              to={item.to}
+              title={collapsed ? item.label : undefined}
               className={({ isActive }) => `nav-item ${isActive ? 'nav-item--active' : ''}`}
             >
               <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{item.label}</span>
+              {!collapsed && <span className="nav-label">{item.label}</span>}
             </NavLink>
           ))}
         </nav>
+
         <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <Avatar name={user?.user_name} size="sm" />
+          <Avatar name={user?.user_name} size="sm" />
+          {!collapsed && (
             <div className="sidebar-user-info">
               <span className="sidebar-user-name">{user?.user_name}</span>
               <span className="sidebar-user-role">{user?.role?.replace('_', ' ')}</span>
             </div>
-          </div>
-          <button className="logout-btn" onClick={handleLogout} title="Logout">⎋</button>
+          )}
+          {!collapsed && (
+            <button className="logout-btn" onClick={handleLogout} title="Logout">⎋</button>
+          )}
         </div>
       </aside>
 
+      {/* ── Main ── */}
       <div className="main-area">
         <header className="topbar">
-          <div className="topbar-left" />
+          <div className="topbar-left">
+            <button className="sidebar-toggle" onClick={toggleSidebar} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+              {collapsed ? '›' : '‹'}
+            </button>
+          </div>
           <div className="topbar-right">
             <ThemeToggle />
             <NotificationBell />
@@ -73,7 +99,8 @@ export default function ClientLayout() {
         </main>
       </div>
 
-      <AIOutputPanel />
+      {/* ── Aria panel — flex sibling (VS Code style) ── */}
+      <FloatingAgent />
       <ToastContainer />
     </div>
   );

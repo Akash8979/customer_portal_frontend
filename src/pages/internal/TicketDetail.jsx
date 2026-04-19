@@ -3,11 +3,9 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTicket, getComments, updateStatus } from '../../api/tickets';
 import { listMentionUsers } from '../../api/users';
-import { useAI } from '../../hooks/useAI';
 import Badge from '../../components/shared/Badge';
 import SlaTimer from '../../components/shared/SlaTimer';
 import StatusTimeline from '../../components/shared/StatusTimeline';
-import Button from '../../components/shared/Button';
 import Avatar from '../../components/shared/Avatar';
 import CommentCompose from '../../components/shared/CommentCompose';
 import { relativeTime, fullDate } from '../../utils/formatters';
@@ -18,7 +16,6 @@ const STATUS_FLOW = ['OPEN','TRIAGED','ACKNOWLEDGED','IN_PROGRESS','PENDING_CLIE
 export default function TicketDetail() {
   const { id } = useParams();
   const qc = useQueryClient();
-  const ai = useAI();
   const [tab, setTab] = useState('thread');
 
   const { data: usersData = [] } = useQuery({
@@ -85,7 +82,7 @@ export default function TicketDetail() {
               const name = userMap[c.user_id] || `User #${c.user_id}`;
               return (
                 <div key={c.id} className={`comment-item ${c.is_internal ? 'comment--internal' : ''}`}>
-                  <Avatar name={name} size={32} />
+                  <Avatar name={name} size="md" />
                   <div className="comment-body">
                     <div className="comment-header">
                       <span className="comment-author">{name}</span>
@@ -152,14 +149,6 @@ export default function TicketDetail() {
           <StatusTimeline steps={timelineSteps} />
         </div>
 
-        <div className="meta-section">
-          <div className="meta-label">AI Actions</div>
-          <div className="ai-actions">
-            <Button variant="ai" size="sm" onClick={() => ai.summariseThread(id)}>✦ Summarise Thread</Button>
-            <Button variant="ai" size="sm" onClick={() => ai.analyseSentiment(comments.map((c) => c.message).join('\n'))}>✦ Sentiment Analysis</Button>
-            <Button variant="ai" size="sm" onClick={() => ai.agentRun({ user_prompt: 'Suggest likely root cause for this bug based on the description and comments', context_data: { ticket } })}>✦ Root Cause</Button>
-          </div>
-        </div>
       </div>
     </div>
   );

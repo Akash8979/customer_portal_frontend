@@ -1,12 +1,31 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { Clock, Tag } from 'lucide-react';
 import { listTickets } from '../../api/tickets';
 import Badge from '../../components/shared/Badge';
 import Button from '../../components/shared/Button';
 import SlaTimer from '../../components/shared/SlaTimer';
+import FilterSelect from '../../components/shared/FilterSelect';
 import { relativeTime } from '../../utils/formatters';
 import './MyTickets.css';
+
+const STATUS_OPTIONS = [
+  { value: 'OPEN',           label: 'Open' },
+  { value: 'IN_PROGRESS',    label: 'In Progress' },
+  { value: 'PENDING_CLIENT', label: 'Pending Client' },
+  { value: 'RESOLVED',       label: 'Resolved' },
+  { value: 'CLOSED',         label: 'Closed' },
+];
+
+const CATEGORY_OPTIONS = [
+  { value: 'BUG',                  label: 'Bug' },
+  { value: 'FEATURE_REQUEST',      label: 'Feature Request' },
+  { value: 'QUESTION',             label: 'Question' },
+  { value: 'ONBOARDING_ISSUE',     label: 'Onboarding Issue' },
+  { value: 'INTEGRATION_ISSUE',    label: 'Integration Issue' },
+  { value: 'PERFORMANCE_ISSUE',    label: 'Performance Issue' },
+];
 
 const PAGE_SIZE = 9;
 
@@ -37,18 +56,23 @@ export default function MyTickets() {
       </div>
 
       <div className="filter-bar">
-        <select value={filters.status} onChange={(e) => setFilter('status', e.target.value)}>
-          <option value="">All Statuses</option>
-          {['OPEN','IN_PROGRESS','PENDING_CLIENT','RESOLVED','CLOSED'].map((s) => (
-            <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
-          ))}
-        </select>
-        <select value={filters.category} onChange={(e) => setFilter('category', e.target.value)}>
-          <option value="">All Types</option>
-          {['BUG','FEATURE_REQUEST','QUESTION','ONBOARDING_ISSUE','INTEGRATION_ISSUE','PERFORMANCE_ISSUE'].map((c) => (
-            <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
-          ))}
-        </select>
+        <FilterSelect
+          value={filters.status}
+          onChange={(v) => setFilter('status', v)}
+          options={STATUS_OPTIONS}
+          placeholder="All Statuses"
+        />
+        <FilterSelect
+          value={filters.category}
+          onChange={(v) => setFilter('category', v)}
+          options={CATEGORY_OPTIONS}
+          placeholder="All Types"
+        />
+        {(filters.status || filters.category) && (
+          <button className="filter-clear-btn" onClick={() => { setFilters({ status: '', category: '' }); setPage(1); }}>
+            Clear ×
+          </button>
+        )}
       </div>
 
       {isLoading ? (
@@ -64,19 +88,31 @@ export default function MyTickets() {
         <div className="ticket-grid">
           {tickets.map((t) => (
             <div key={t.id} className={`ticket-card priority--${(t.priority || 'low').toLowerCase()}`} onClick={() => navigate(`/client/tickets/${t.id}`)}>
-              <div className="ticket-card-header">
-                <span className="ticket-id">#{t.id}</span>
-                <div className="ticket-card-badges">
-                  <Badge status={t.status} />
+
+              <div className="ticket-card-top">
+                <span className="ticket-id-chip">#{t.id}</span>
+                <Badge status={t.status} />
+              </div>
+
+              <div className="ticket-card-body">
+                <h3 className="ticket-card-title">{t.title}</h3>
+                <p className="ticket-card-desc">{t.description?.slice(0, 110)}{t.description?.length > 110 ? '…' : ''}</p>
+              </div>
+
+              <div className="ticket-card-footer">
+                <div className="ticket-card-meta">
+                  {t.category && (
+                    <span className="ticket-card-type">
+                      <Tag size={10} />{t.category.replace(/_/g, ' ')}
+                    </span>
+                  )}
                   {t.priority && <Badge priority={t.priority} />}
                 </div>
+                <span className="ticket-card-time">
+                  <Clock size={10} />{relativeTime(t.updated_at)}
+                </span>
               </div>
-              <h3 className="ticket-card-title">{t.title}</h3>
-              <p className="ticket-card-desc">{t.description?.slice(0, 100)}{t.description?.length > 100 ? '…' : ''}</p>
-              <div className="ticket-card-footer">
-                <span className="ticket-card-type">{t.category?.replace(/_/g, ' ')}</span>
-                <span className="ticket-card-time">{relativeTime(t.updated_at)}</span>
-              </div>
+
               {t.sla?.resolution_due_at && (
                 <div className="ticket-card-sla">
                   <SlaTimer deadline={t.sla.resolution_due_at} label="SLA" />

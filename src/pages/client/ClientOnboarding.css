@@ -1,24 +1,369 @@
-.onboarding-summary { display: flex; flex-direction: column; gap: var(--space-2); max-width: 400px; }
-.pct-big { font-size: 28px; font-weight: 700; color: var(--amber); }
-.phases-list { display: flex; flex-direction: column; gap: var(--space-5); }
-.phase-block { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-5); }
-.phase-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
-.phase-num { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--text-dim); margin-right: var(--space-2); }
-.phase-name { font-size: 15px; font-weight: 600; }
-.phase-pct { font-size: 14px; font-weight: 700; color: var(--amber); }
+/* ══════════════════════════════════════════
+   HERO SUMMARY CARD
+══════════════════════════════════════════ */
+.ob-hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0;
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-hover) 100%);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
 
-.task-list { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); }
-.task-row { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius); background: var(--bg-subtle); }
-.task--done { opacity: 0.6; }
-.task--blocked { border-left: 3px solid var(--red); }
-.check-done { color: var(--green); font-size: 16px; }
-.check-pending { color: var(--text-dim); }
-.check-btn { background: none; border: none; color: var(--amber); font-size: 16px; }
-.task-info { flex: 1; }
-.task-title { font-size: 13px; font-weight: 500; }
-.task-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-.task-meta { display: flex; gap: var(--space-3); margin-top: var(--space-1); font-size: 11px; color: var(--text-dim); flex-wrap: wrap; }
-.task-owner { padding: 2px 6px; border-radius: 3px; font-weight: 600; }
-.task-owner--client { background: rgba(239,159,39,0.1); color: var(--amber); }
-.task-owner--delivery { background: rgba(55,138,221,0.1); color: var(--blue); }
-.task-blocker-label { color: var(--red); font-weight: 600; }
+/* ── Left: big percentage + bar ── */
+.ob-hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  border-right: 1px solid var(--border);
+  min-width: 180px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--amber) 6%, transparent), transparent 70%);
+}
+
+.ob-pct {
+  font-size: 60px;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+  letter-spacing: -3px;
+}
+
+.ob-pct-unit {
+  font-size: 30px;
+  letter-spacing: 0;
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.ob-pct-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+}
+
+/* ── Right: stats + meta ── */
+.ob-hero-right {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-6);
+  gap: var(--space-5);
+}
+
+/* ── Stats grid: 2×2 ── */
+.ob-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4) var(--space-6);
+}
+
+.ob-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ob-stat--danger .ob-stat-value { color: var(--red); }
+
+.ob-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.ob-stat-icon--blue   { background: rgba(96, 165, 250, 0.12);  color: var(--blue); }
+.ob-stat-icon--purple { background: rgba(167, 139, 250, 0.12); color: var(--purple); }
+.ob-stat-icon--green  { background: rgba(16, 185, 138, 0.12);  color: var(--green); }
+.ob-stat-icon--red    { background: rgba(248, 113, 113, 0.12); color: var(--red); }
+
+.ob-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.ob-stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+/* ── Meta strip ── */
+.ob-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ob-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ob-meta-item strong { color: var(--text-primary); font-weight: 600; }
+
+
+/* ══════════════════════════════════════════
+   PHASE LIST
+══════════════════════════════════════════ */
+.ob-phases {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ── Phase card ── */
+.ob-phase {
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-hover) 100%);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 140ms ease;
+}
+
+.ob-phase:hover { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28); }
+
+/* Status accent */
+.ob-phase--in_progress  { border-left-color: var(--amber); }
+.ob-phase--completed    { border-left-color: var(--green); }
+.ob-phase--blocked      { border-left-color: var(--red); }
+.ob-phase--not_started  { border-left-color: var(--border-mid); }
+
+/* ── Phase header ── */
+.ob-phase-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.ob-phase-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.ob-phase-num {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber) 25%, transparent);
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  margin-top: 2px;
+}
+
+.ob-phase--completed .ob-phase-num { color: var(--green);  background: color-mix(in srgb, var(--green) 10%, transparent);  border-color: color-mix(in srgb, var(--green) 25%, transparent); }
+.ob-phase--blocked   .ob-phase-num { color: var(--red);    background: color-mix(in srgb, var(--red)   10%, transparent);  border-color: color-mix(in srgb, var(--red)   25%, transparent); }
+
+.ob-phase-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.ob-phase-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+.ob-phase-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.ob-phase-pct {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  letter-spacing: -0.5px;
+}
+
+.ob-phase--completed .ob-phase-pct { color: var(--green); }
+.ob-phase--blocked   .ob-phase-pct { color: var(--red); }
+
+/* ── Phase progress bar ── */
+.ob-phase-bar {
+  height: 5px;
+  background: var(--bg-subtle);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ob-phase-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber), color-mix(in srgb, var(--amber) 70%, var(--blue)));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.ob-phase--completed .ob-phase-bar-fill { background: var(--green); }
+.ob-phase--blocked   .ob-phase-bar-fill { background: var(--red); }
+
+
+/* ══════════════════════════════════════════
+   TASK LIST
+══════════════════════════════════════════ */
+.ob-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── Task row ── */
+.ob-task {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-page);
+  transition: border-color 130ms ease, background 130ms ease;
+}
+
+.ob-task:hover { border-color: var(--border-mid); background: var(--bg-subtle); }
+
+/* Completed — muted out */
+.ob-task--done {
+  opacity: 0.55;
+  background: transparent;
+}
+
+.ob-task--done:hover { opacity: 0.75; }
+
+/* Blocker — red left accent + subtle tint */
+.ob-task--blocker {
+  border-left: 3px solid var(--red);
+  background: rgba(248, 113, 113, 0.04);
+}
+
+.ob-task--blocker:hover { background: rgba(248, 113, 113, 0.08); }
+
+/* ── Check icon/button ── */
+.ob-task-check {
+  flex-shrink: 0;
+  margin-top: 1px;
+  line-height: 0;
+}
+
+.ob-check-done    { color: var(--green); }
+.ob-check-pending { color: var(--border-mid); }
+
+.ob-check-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-dim);
+  line-height: 0;
+  transition: color 130ms ease, transform 120ms ease;
+}
+
+.ob-check-btn:hover {
+  color: var(--amber);
+  transform: scale(1.15);
+}
+
+/* ── Task body ── */
+.ob-task-body { flex: 1; min-width: 0; }
+
+.ob-task-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.ob-task--done .ob-task-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.ob-task-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+.ob-task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.ob-owner {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+}
+
+.ob-owner--client   { background: rgba(79, 142, 247, 0.12);  color: var(--amber); }
+.ob-owner--delivery_team { background: rgba(96, 165, 250, 0.12); color: var(--blue); }
+
+.ob-task-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.ob-blocker-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--red);
+  background: rgba(248, 113, 113, 0.12);
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Task right (badge + button) ── */
+.ob-task-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}

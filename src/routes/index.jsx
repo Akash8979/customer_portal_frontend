@@ -20,6 +20,7 @@ import Releases from '../pages/internal/Releases';
 import OnboardingList from '../pages/internal/OnboardingList';
 import AgentConsole from '../pages/internal/AgentConsole';
 import UserManagement from '../pages/internal/UserManagement';
+import UserEditPage from '../pages/internal/UserEditPage';
 
 // Client pages
 import ClientDashboard from '../pages/client/ClientDashboard';
@@ -71,6 +72,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'CLIENT_ADMIN']}>
             <UserManagement />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'users/:id/edit',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN', 'CLIENT_ADMIN']}>
+            <UserEditPage />
           </ProtectedRoute>
         ),
       },

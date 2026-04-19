@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { listUsers, createUser, updateUser, deactivateUser, activateUser, rolePermissionMap } from '../../api/users';
+import { useNavigate } from 'react-router-dom';
+import { UserPlus, Shield, Check, Users, UserCheck, UserX, ShieldCheck, X, ChevronDown } from 'lucide-react';
+import { listUsers, createUser, updateUser, deactivateUser, activateUser, rolePermissionMap } from '../../api/users'; // updateUser used in bulk role change
 import DataTable from '../../components/shared/DataTable';
 import Badge from '../../components/shared/Badge';
 import Button from '../../components/shared/Button';
 import Modal from '../../components/shared/Modal';
 import Avatar from '../../components/shared/Avatar';
+import FilterSelect from '../../components/shared/FilterSelect';
 import { shortDate } from '../../utils/formatters';
 import useAppStore from '../../stores/useAppStore';
 import { useAuth } from '../../hooks/useAuth';
@@ -13,6 +16,11 @@ import './UserManagement.css';
 
 const ALL_ROLES = ['CLIENT_ADMIN', 'CLIENT_USER', 'AGENT', 'LEAD', 'ADMIN'];
 const CLIENT_ROLES = ['CLIENT_ADMIN', 'CLIENT_USER'];
+
+const ROLE_OPTIONS = [
+  { value: '', label: 'All Roles' },
+  ...ALL_ROLES.map((r) => ({ value: r, label: r.replace(/_/g, ' ') })),
+];
 
 const PERMISSION_LABELS = {
   view_tickets: 'View Tickets',
@@ -45,20 +53,26 @@ const PERMISSION_LABELS = {
 function PermissionMatrix({ rolePermissions, selectedRole, customPerms, onChange }) {
   if (!rolePermissions || !selectedRole) return null;
   const basePerms = rolePermissions[selectedRole] || [];
-  const allPerms = Object.keys(PERMISSION_LABELS);
+  const allPerms  = Object.keys(PERMISSION_LABELS);
 
   return (
     <div className="perm-matrix">
       <p className="perm-matrix-hint">
-        Base permissions for <strong>{selectedRole}</strong> are pre-granted. Toggle custom additions below.
+        <Shield size={12} style={{ display: 'inline', marginRight: 5 }} />
+        Base permissions for <strong>{selectedRole.replace(/_/g, ' ')}</strong> are pre-granted. Toggle custom additions below.
       </p>
       <div className="perm-grid">
         {allPerms.map((perm) => {
-          const isBase = basePerms.includes(perm);
-          const isCustom = customPerms.includes(perm);
+          const isBase    = basePerms.includes(perm);
+          const isCustom  = customPerms.includes(perm);
           const isGranted = isBase || isCustom;
           return (
-            <label key={perm} className={`perm-cell ${isBase ? 'perm-cell--base' : ''} ${isCustom ? 'perm-cell--custom' : ''}`}>
+            <label
+              key={perm}
+              className={`perm-cell ${isBase ? 'perm-cell--base' : ''} ${isCustom ? 'perm-cell--custom' : ''}`}
+              title={isBase ? 'Base permission — cannot be removed' : ''}
+            >
+              <span className="perm-check">{isGranted ? <Check size={11} /> : null}</span>
               <input
                 type="checkbox"
                 checked={isGranted}
@@ -72,8 +86,8 @@ function PermissionMatrix({ rolePermissions, selectedRole, customPerms, onChange
                 }}
               />
               <span className="perm-name">{PERMISSION_LABELS[perm] ?? perm}</span>
-              {isBase && <span className="perm-tag perm-tag--base">base</span>}
-              {isCustom && <span className="perm-tag perm-tag--custom">custom</span>}
+              {isBase   && <span className="perm-tag perm-tag--base">base</span>}
+              {isCustom && <span className="perm-tag perm-tag--custom">+extra</span>}
             </label>
           );
         })}
@@ -82,20 +96,85 @@ function PermissionMatrix({ rolePermissions, selectedRole, customPerms, onChange
   );
 }
 
-const EMPTY_FORM = { user_name: '', email: '', password: '', role: 'CLIENT_USER', tenant_id: '', tenant_name: '', custom_permissions: [] };
+/* ── Bulk action bar ── */
+function BulkBar({ count, onActivate, onDeactivate, onChangeRole, onClear, loading, availableRoles }) {
+  const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+
+  return (
+    <div className="bulk-bar">
+      <div className="bulk-bar-left">
+        <span className="bulk-count">{count} selected</span>
+        <button className="bulk-clear" onClick={onClear} title="Clear selection">
+          <X size={13} />
+        </button>
+      </div>
+
+      <div className="bulk-bar-actions">
+        <Button
+          size="sm" variant="secondary"
+          icon={<UserCheck size={13} />}
+          loading={loading === 'activate'}
+          onClick={onActivate}
+        >
+          Activate
+        </Button>
+        <Button
+          size="sm" variant="danger"
+          icon={<UserX size={13} />}
+          loading={loading === 'deactivate'}
+          onClick={onDeactivate}
+        >
+          Deactivate
+        </Button>
+
+        {/* Role picker */}
+        <div className="bulk-role-wrap">
+          <Button
+            size="sm" variant="secondary"
+            icon={<ShieldCheck size={13} />}
+            onClick={() => setRoleMenuOpen((o) => !o)}
+          >
+            Change Role <ChevronDown size={11} style={{ marginLeft: 2 }} />
+          </Button>
+          {roleMenuOpen && (
+            <div className="bulk-role-dropdown">
+              {availableRoles.map((r) => (
+                <button
+                  key={r}
+                  className="bulk-role-option"
+                  onClick={() => { setRoleMenuOpen(false); onChangeRole(r); }}
+                >
+                  {r.replace(/_/g, ' ')}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const EMPTY_FORM = {
+  user_name: '', email: '', password: '',
+  role: 'CLIENT_USER', tenant_id: '', tenant_name: '', custom_permissions: [],
+};
 
 export default function UserManagement() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { addToast } = useAppStore();
-  const { user: me, is } = useAuth();
+  const { is } = useAuth();
   const isAdmin = is('ADMIN');
 
   const [roleFilter, setRoleFilter] = useState('');
-  const [page, setPage] = useState(1);
+  const [page, setPage]             = useState(1);
   const [showCreate, setShowCreate] = useState(false);
-  const [editUser, setEditUser] = useState(null);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [editForm, setEditForm] = useState({ role: '', is_active: true, custom_permissions: [] });
+  const [form, setForm]             = useState(EMPTY_FORM);
+
+  /* bulk selection */
+  const [selected, setSelected] = useState(new Set());
+  const [bulkLoading, setBulkLoading] = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['users', roleFilter, page],
@@ -118,46 +197,129 @@ export default function UserManagement() {
     onError: (e) => addToast({ type: 'error', message: e?.response?.data?.error || 'Failed to create user.' }),
   });
 
-  const updateMut = useMutation({
-    mutationFn: ({ id, ...d }) => updateUser(id, d),
+  const toggleActiveMut = useMutation({
+    mutationFn: ({ id, active }) => active ? deactivateUser(id) : activateUser(id),
     onSuccess: () => {
       qc.invalidateQueries(['users']);
-      setEditUser(null);
-      addToast({ type: 'success', message: 'User updated.' });
+      addToast({ type: 'success', message: 'User status updated.' });
     },
   });
 
-  const toggleActiveMut = useMutation({
-    mutationFn: ({ id, active }) => active ? deactivateUser(id) : activateUser(id),
-    onSuccess: () => { qc.invalidateQueries(['users']); addToast({ type: 'success', message: 'User status updated.' }); },
-  });
+  const rows = data?.data || [];
+  const pageIds = rows.map((r) => r.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const somePageSelected = pageIds.some((id) => selected.has(id));
+
+  function toggleRow(id, e) {
+    e.stopPropagation();
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll(e) {
+    e.stopPropagation();
+    if (allPageSelected) {
+      setSelected((prev) => { const n = new Set(prev); pageIds.forEach((id) => n.delete(id)); return n; });
+    } else {
+      setSelected((prev) => { const n = new Set(prev); pageIds.forEach((id) => n.add(id)); return n; });
+    }
+  }
+
+  async function bulkActivate() {
+    setBulkLoading('activate');
+    const ids = [...selected];
+    await Promise.all(ids.map((id) => activateUser(id)));
+    qc.invalidateQueries(['users']);
+    setSelected(new Set());
+    setBulkLoading(null);
+    addToast({ type: 'success', message: `${ids.length} user(s) activated.` });
+  }
+
+  async function bulkDeactivate() {
+    setBulkLoading('deactivate');
+    const ids = [...selected];
+    await Promise.all(ids.map((id) => deactivateUser(id)));
+    qc.invalidateQueries(['users']);
+    setSelected(new Set());
+    setBulkLoading(null);
+    addToast({ type: 'success', message: `${ids.length} user(s) deactivated.` });
+  }
+
+  async function bulkChangeRole(role) {
+    setBulkLoading('role');
+    const ids = [...selected];
+    await Promise.all(ids.map((id) => updateUser(id, { role })));
+    qc.invalidateQueries(['users']);
+    setSelected(new Set());
+    setBulkLoading(null);
+    addToast({ type: 'success', message: `Role changed to ${role.replace(/_/g, ' ')} for ${ids.length} user(s).` });
+  }
 
   const availableRoles = isAdmin ? ALL_ROLES : CLIENT_ROLES;
 
   const columns = [
     {
+      key: '_select', label: (
+        <input
+          type="checkbox"
+          className="um-checkbox"
+          checked={allPageSelected}
+          ref={(el) => { if (el) el.indeterminate = somePageSelected && !allPageSelected; }}
+          onChange={toggleAll}
+        />
+      ),
+      width: 40,
+      render: (_, row) => (
+        <input
+          type="checkbox"
+          className="um-checkbox"
+          checked={selected.has(row.id)}
+          onChange={(e) => toggleRow(row.id, e)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+    },
+    {
       key: 'user_name', label: 'User',
       render: (v, row) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Avatar name={v} size={28} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Avatar name={v} size="sm" />
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>{v}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{v}</div>
             <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>{row.email}</div>
           </div>
         </div>
       ),
     },
-    { key: 'role', label: 'Role', render: (v) => <Badge status={v} /> },
-    { key: 'tenant_name', label: 'Tenant', render: (v) => v || <span style={{ color: 'var(--text-dim)' }}>—</span> },
-    { key: 'is_active', label: 'Status', render: (v) => <span className={`user-status ${v ? 'user-status--active' : 'user-status--inactive'}`}>{v ? 'Active' : 'Inactive'}</span> },
-    { key: 'last_login', label: 'Last Login', render: (v) => v ? shortDate(v) : <span style={{ color: 'var(--text-dim)' }}>Never</span> },
-    { key: 'created_at', label: 'Created', render: (v) => shortDate(v) },
+    { key: 'role',        label: 'Role',       render: (v) => <Badge status={v} /> },
+    { key: 'tenant_name', label: 'Tenant',     render: (v) => v || <span style={{ color: 'var(--text-dim)' }}>—</span> },
     {
-      key: 'id', label: '', width: 120,
+      key: 'is_active', label: 'Status',
+      render: (v) => (
+        <span className={`um-status-pill ${v ? 'um-status--active' : 'um-status--inactive'}`}>
+          {v ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    { key: 'last_login', label: 'Last Login', render: (v) => v ? shortDate(v) : <span style={{ color: 'var(--text-dim)' }}>Never</span> },
+    { key: 'created_at', label: 'Created',    render: (v) => shortDate(v) },
+    {
+      key: 'id', label: '', width: 130,
       render: (v, row) => (
         <div style={{ display: 'flex', gap: 6 }}>
-          <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setEditUser(row); setEditForm({ role: row.role, is_active: row.is_active, custom_permissions: row.custom_permissions || [] }); }}>Edit</Button>
-          <Button size="sm" variant={row.is_active ? 'danger' : 'secondary'} onClick={(e) => { e.stopPropagation(); toggleActiveMut.mutate({ id: v, active: row.is_active }); }}>
+          <Button
+            size="sm" variant="ghost"
+            onClick={(e) => { e.stopPropagation(); navigate(`/internal/users/${v}/edit`); }}
+          >
+            Edit
+          </Button>
+          <Button
+            size="sm" variant={row.is_active ? 'danger' : 'secondary'}
+            onClick={(e) => { e.stopPropagation(); toggleActiveMut.mutate({ id: v, active: row.is_active }); }}
+          >
             {row.is_active ? 'Deactivate' : 'Activate'}
           </Button>
         </div>
@@ -167,34 +329,62 @@ export default function UserManagement() {
 
   return (
     <div className="page">
+
+      {/* ── Header ── */}
       <div className="page-header">
         <div>
           <h1 className="page-title">User Management</h1>
-          <p className="page-subtitle">{data?.total ?? 0} users</p>
+          <p className="page-subtitle">
+            <Users size={12} style={{ display: 'inline', marginRight: 5 }} />
+            {data?.total ?? 0} users
+          </p>
         </div>
-        <Button variant="primary" size="sm" onClick={() => setShowCreate(true)}>+ New User</Button>
+        <Button variant="primary" size="sm" icon={<UserPlus size={13} />} onClick={() => setShowCreate(true)}>
+          New User
+        </Button>
       </div>
 
+      {/* ── Filter bar ── */}
       <div className="filter-bar">
-        <select value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}>
-          <option value="">All Roles</option>
-          {ALL_ROLES.map((r) => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
-        </select>
+        <FilterSelect
+          value={roleFilter}
+          options={ROLE_OPTIONS}
+          onChange={(v) => { setRoleFilter(v); setPage(1); }}
+          placeholder="All Roles"
+        />
       </div>
 
+      {/* ── Bulk action bar ── */}
+      {selected.size > 0 && (
+        <BulkBar
+          count={selected.size}
+          loading={bulkLoading}
+          availableRoles={availableRoles}
+          onActivate={bulkActivate}
+          onDeactivate={bulkDeactivate}
+          onChangeRole={bulkChangeRole}
+          onClear={() => setSelected(new Set())}
+        />
+      )}
+
+      {/* ── Table ── */}
       <DataTable
-        columns={columns} rows={data?.data || []} loading={isLoading}
+        columns={columns} rows={rows} loading={isLoading}
         page={page} pageSize={20} total={data?.total || 0} onPageChange={setPage}
       />
 
-      {/* Create User Modal */}
+      {/* ── Create User Modal ── */}
       <Modal
-        open={showCreate} onClose={() => { setShowCreate(false); setForm(EMPTY_FORM); }}
-        title="Create New User" size="xl"
+        open={showCreate}
+        onClose={() => { setShowCreate(false); setForm(EMPTY_FORM); }}
+        title="Create New User"
+        size="xl"
         footer={
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
             <Button variant="ghost" onClick={() => { setShowCreate(false); setForm(EMPTY_FORM); }}>Cancel</Button>
-            <Button variant="primary" loading={createMut.isPending} onClick={() => createMut.mutate(form)}>Create User</Button>
+            <Button variant="primary" loading={createMut.isPending} onClick={() => createMut.mutate(form)}>
+              Create User
+            </Button>
           </div>
         }
       >
@@ -230,10 +420,7 @@ export default function UserManagement() {
             </>
           )}
         </div>
-
-        <div className="um-section-divider">
-          <span>Permissions</span>
-        </div>
+        <div className="um-section-divider"><span>Permissions</span></div>
         <PermissionMatrix
           rolePermissions={rolePerms}
           selectedRole={form.role}
@@ -242,40 +429,6 @@ export default function UserManagement() {
         />
       </Modal>
 
-      {/* Edit User Modal */}
-      <Modal
-        open={!!editUser} onClose={() => setEditUser(null)}
-        title={`Edit — ${editUser?.user_name}`} size="xl"
-        footer={
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <Button variant="ghost" onClick={() => setEditUser(null)}>Cancel</Button>
-            <Button variant="primary" loading={updateMut.isPending} onClick={() => updateMut.mutate({ id: editUser.id, ...editForm })}>Save Changes</Button>
-          </div>
-        }
-      >
-        <div className="um-form-grid">
-          <div className="form-field">
-            <label>Role</label>
-            <select value={editForm.role} onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value, custom_permissions: [] }))}>
-              {availableRoles.map((r) => <option key={r} value={r}>{r.replace(/_/g, ' ')}</option>)}
-            </select>
-          </div>
-          <div className="form-field">
-            <label>Status</label>
-            <select value={editForm.is_active ? 'active' : 'inactive'} onChange={(e) => setEditForm((f) => ({ ...f, is_active: e.target.value === 'active' }))}>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-        </div>
-        <div className="um-section-divider"><span>Permissions</span></div>
-        <PermissionMatrix
-          rolePermissions={rolePerms}
-          selectedRole={editForm.role}
-          customPerms={editForm.custom_permissions}
-          onChange={(perms) => setEditForm((f) => ({ ...f, custom_permissions: perms }))}
-        />
-      </Modal>
     </div>
   );
 }

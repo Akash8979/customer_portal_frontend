@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
-import { useAI } from '../../hooks/useAI';
 import { getTicketKpis } from '../../api/tickets';
 import { bugStats } from '../../api/bugs';
 import { listOnboarding } from '../../api/onboarding';
@@ -16,8 +15,6 @@ import './Dashboard.css';
 export default function InternalDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const ai = useAI();
-
   const { data: kpiData, isLoading: kpiLoading } = useQuery({
     queryKey: ['ticket-kpis'],
     queryFn: () => getTicketKpis().then((r) => r.data.data),
@@ -45,9 +42,6 @@ export default function InternalDashboard() {
           <h1 className="page-title">Dashboard</h1>
           <p className="page-subtitle">Good morning, {user?.user_name?.split(' ')[0]}. Here's what needs your attention today.</p>
         </div>
-        <Button variant="ai" size="sm" onClick={() => ai.agentRun({ user_prompt: 'Give me a daily briefing of the most important items across all clients', context_data: { kpis: kpi, bugs: bugData } })}>
-          ✦ AI Daily Digest
-        </Button>
       </div>
 
       {/* KPI tiles */}

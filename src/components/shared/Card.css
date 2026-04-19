@@ -1,8 +1,59 @@
 .card {
-  background: var(--bg-card);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(140deg, var(--bg-card) 0%, var(--bg-hover) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), border-color var(--transition);
 }
+
+/* Top-left corner bracket */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid var(--border-mid);
+  border-left: 2px solid var(--border-mid);
+  border-radius: 2px 0 0 0;
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity var(--transition), width var(--transition), height var(--transition), border-color var(--transition);
+}
+
+/* Bottom-right corner bracket */
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  border-bottom: 2px solid var(--border-mid);
+  border-right: 2px solid var(--border-mid);
+  border-radius: 0 0 2px 0;
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity var(--transition), width var(--transition), height var(--transition), border-color var(--transition);
+}
+
+.card:hover {
+  border-color: var(--border-mid);
+  box-shadow: var(--shadow);
+}
+
+.card:hover::before,
+.card:hover::after {
+  width: 18px;
+  height: 18px;
+  opacity: 1;
+  border-color: var(--amber);
+}
+
 .card--padded { padding: var(--space-5); }
-.card--clickable { cursor: pointer; transition: border-color var(--transition), background var(--transition); }
-.card--clickable:hover { border-color: var(--border-mid); background: var(--bg-hover); }
+
+.card--clickable { cursor: pointer; }
+.card--clickable:hover { background: linear-gradient(140deg, var(--bg-hover) 0%, var(--bg-subtle) 100%); }

@@ -1,8 +1,8 @@
 .filter-bar {
-  display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center;
+  display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center;
 }
 .filter-search { flex: 1; min-width: 200px; max-width: 340px; }
-.filter-bar select { width: auto; min-width: 120px; }
+.filter-bar select { width: auto; min-width: 130px; }
 .header-actions { display: flex; gap: var(--space-3); }
 .ticket-id { font-family: var(--font-mono); color: var(--text-muted); font-size: 12px; }
 .dim { color: var(--text-dim); font-size: 12px; }

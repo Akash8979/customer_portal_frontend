@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { listBugs, createBug, getBug, updateBug, bugStats } from '../../api/bugs';
-import { useAI } from '../../hooks/useAI';
 import DataTable from '../../components/shared/DataTable';
 import Badge from '../../components/shared/Badge';
 import Button from '../../components/shared/Button';
@@ -19,7 +18,6 @@ const STATUS_OPTIONS = ['', 'REPORTED', 'REPRODUCED', 'ROOT_CAUSE_IDENTIFIED', '
 export default function BugTracker() {
   const qc = useQueryClient();
   const { addToast } = useAppStore();
-  const ai = useAI();
   const [filters, setFilters] = useState({ severity: '', status: '' });
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
@@ -118,9 +116,6 @@ export default function BugTracker() {
             <label>Client Impact</label>
             <textarea rows={2} value={form.client_impact} onChange={(e) => setForm((f) => ({ ...f, client_impact: e.target.value }))} />
           </div>
-        </div>
-        <div style={{ marginTop: 12 }}>
-          <Button variant="ai" size="sm" onClick={() => ai.agentRun({ user_prompt: 'Suggest likely root cause and affected clients for this bug', context_data: form })}>✦ AI Analysis</Button>
         </div>
       </Modal>
     </div>

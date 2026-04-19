@@ -14,3 +14,7 @@ export const churnRisk         = (account_data)   => aiClient.post('/portal/ai-e
 export const draftOutreach     = (data)           => aiClient.post('/portal/ai-engine/draft-outreach', data);
 export const agentRun          = (data)           => aiClient.post('/portal/ai-engine/agent-run', data);
 export const onboardingRecovery= (data)           => aiClient.post('/portal/ai-engine/onboarding-recovery-plan', data);
+
+// ── Personal Agent (Aria) ──────────────────────────────────────────────────
+export const ariaChat          = (data)           => aiClient.post('/portal/ai-engine/personal-agent/chat', data);
+export const ariaMemory        = (userId)         => aiClient.get(`/portal/ai-engine/personal-agent/memory/${userId}`);

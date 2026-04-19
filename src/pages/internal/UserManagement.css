@@ -1,23 +1,128 @@
+/* ══════════════════════════════════════════
+   ROW CHECKBOX
+══════════════════════════════════════════ */
+.um-checkbox {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--amber);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+
+/* ══════════════════════════════════════════
+   BULK ACTION BAR
+══════════════════════════════════════════ */
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--amber) 8%, var(--bg-card)),
+    var(--bg-card)
+  );
+  border: 1px solid color-mix(in srgb, var(--amber) 30%, var(--border));
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px color-mix(in srgb, var(--amber) 12%, transparent);
+  animation: bulk-in 160ms ease;
+}
+
+@keyframes bulk-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.bulk-bar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bulk-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  letter-spacing: -0.3px;
+}
+
+.bulk-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 130ms ease, color 130ms ease, border-color 130ms ease;
+}
+
+.bulk-clear:hover {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: var(--red);
+}
+
+.bulk-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── Role dropdown ── */
+.bulk-role-wrap {
+  position: relative;
+}
+
+.bulk-role-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  z-index: 50;
+  animation: bulk-in 140ms ease;
+}
+
+.bulk-role-option {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  text-align: left;
+  font-size: 13px;
+  font-family: var(--font-ui);
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.bulk-role-option:hover {
+  background: var(--bg-hover);
+  color: var(--amber);
+}
+
+
+/* ══════════════════════════════════════════
+   FORM GRID
+══════════════════════════════════════════ */
 .um-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
 }
 
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.form-field label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-}
-
+/* ── Section divider ── */
 .um-section-divider {
   display: flex;
   align-items: center;
@@ -25,7 +130,7 @@
   margin: var(--space-5) 0 var(--space-4);
   color: var(--text-dim);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -38,18 +143,82 @@
   background: var(--border);
 }
 
-/* Permission Matrix */
-.perm-matrix { display: flex; flex-direction: column; gap: var(--space-3); }
+
+/* ══════════════════════════════════════════
+   EDIT MODAL — USER IDENTITY HEADER
+══════════════════════════════════════════ */
+.um-edit-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-hover) 100%);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-5);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+.um-edit-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.um-edit-email {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+
+/* ══════════════════════════════════════════
+   STATUS PILL (table column)
+══════════════════════════════════════════ */
+.um-status-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: 100px;
+}
+
+.um-status--active {
+  background: rgba(16, 185, 138, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(16, 185, 138, 0.28);
+}
+
+.um-status--inactive {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--red);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+}
+
+
+/* ══════════════════════════════════════════
+   PERMISSION MATRIX
+══════════════════════════════════════════ */
+.perm-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
 
 .perm-matrix-hint {
   font-size: 12px;
   color: var(--text-muted);
   margin: 0;
+  display: flex;
+  align-items: center;
 }
 
 .perm-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: var(--space-2);
 }
 
@@ -58,39 +227,72 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background: var(--bg-subtle);
   cursor: pointer;
   font-size: 12px;
-  transition: border-color 0.15s;
+  transition: border-color 130ms ease, background 130ms ease;
+  user-select: none;
 }
 
-.perm-cell:hover:not(.perm-cell--base) { border-color: var(--amber); }
-.perm-cell--base { background: rgba(29, 158, 117, 0.06); border-color: rgba(29, 158, 117, 0.3); cursor: default; }
-.perm-cell--custom { background: rgba(239, 159, 39, 0.08); border-color: rgba(239, 159, 39, 0.4); }
+/* hide native checkbox — visual state shown via perm-check */
+.perm-cell input[type="checkbox"] { display: none; }
 
-.perm-name { flex: 1; color: var(--text-secondary); }
-.perm-cell--base .perm-name { color: var(--green); }
+.perm-cell:hover:not(.perm-cell--base) {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.perm-cell--base {
+  background: rgba(16, 185, 138, 0.06);
+  border-color: rgba(16, 185, 138, 0.28);
+  cursor: default;
+}
+
+.perm-cell--custom {
+  background: rgba(251, 191, 36, 0.06);
+  border-color: rgba(251, 191, 36, 0.38);
+}
+
+/* ── Check icon box ── */
+.perm-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-page);
+  color: transparent;
+  transition: background 130ms ease, border-color 130ms ease, color 130ms ease;
+}
+
+.perm-cell--base   .perm-check { background: rgba(16, 185, 138, 0.18); border-color: var(--green); color: var(--green); }
+.perm-cell--custom .perm-check { background: rgba(251, 191, 36, 0.18); border-color: var(--amber); color: var(--amber); }
+
+/* ── Perm label ── */
+.perm-name {
+  flex: 1;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.perm-cell--base   .perm-name { color: var(--green); }
 .perm-cell--custom .perm-name { color: var(--amber); }
 
+/* ── Tag badges ── */
 .perm-tag {
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 1px 5px;
-  border-radius: 3px;
+  padding: 2px 6px;
+  border-radius: 100px;
+  flex-shrink: 0;
 }
-.perm-tag--base { background: rgba(29,158,117,0.2); color: var(--green); }
-.perm-tag--custom { background: rgba(239,159,39,0.2); color: var(--amber); }
 
-/* User status pill */
-.user-status {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-.user-status--active { background: rgba(29,158,117,0.15); color: var(--green); }
-.user-status--inactive { background: rgba(226,75,74,0.15); color: var(--red); }
+.perm-tag--base   { background: rgba(16, 185, 138, 0.15); color: var(--green); }
+.perm-tag--custom { background: rgba(251, 191, 36, 0.15);  color: var(--amber); }

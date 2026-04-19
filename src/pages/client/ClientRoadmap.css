@@ -1,13 +1,285 @@
-.roadmap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
-.roadmap-quarter { display: flex; flex-direction: column; gap: var(--space-3); }
-.quarter-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--amber); padding: var(--space-2) 0; border-bottom: 2px solid var(--amber); }
-.roadmap-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3); }
-.roadmap-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-2); margin-bottom: var(--space-1); }
-.roadmap-title { font-size: 13px; font-weight: 500; }
-.roadmap-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: var(--space-2); }
-.roadmap-vote { display: flex; justify-content: flex-end; }
-.vote-btn { background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-muted); padding: 3px 8px; border-radius: var(--radius-sm); font-size: 11px; }
-.vote-btn:hover { border-color: var(--amber); color: var(--amber); }
-.req-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
-.req-title { flex: 1; font-size: 13px; }
-.req-reason { font-size: 11px; color: var(--text-muted); }
+/* ══════════════════════════════════════════
+   ROADMAP GRID — 4-column quarter lanes
+══════════════════════════════════════════ */
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 1100px) { .roadmap-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .roadmap-grid { grid-template-columns: 1fr; } }
+
+
+/* ══════════════════════════════════════════
+   LANE
+══════════════════════════════════════════ */
+.roadmap-lane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* ── Lane header ── */
+.lane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-hover) 100%);
+  border: 1px solid var(--border-mid);
+  border-top: 3px solid var(--lane-accent, var(--border-mid));
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.lane-header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.lane-q {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--lane-accent, var(--text-primary));
+  font-family: var(--font-mono);
+  letter-spacing: -0.5px;
+}
+
+.lane-year {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.lane-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--lane-accent, var(--text-dim));
+  background: color-mix(in srgb, var(--lane-accent, var(--border-mid)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lane-accent, var(--border-mid)) 28%, transparent);
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-family: var(--font-mono);
+}
+
+
+/* ══════════════════════════════════════════
+   LANE CARDS WRAPPER
+══════════════════════════════════════════ */
+.lane-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+/* ── Empty state ── */
+.lane-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.lane-empty-icon { color: var(--border-mid); }
+
+
+/* ══════════════════════════════════════════
+   ROADMAP FEATURE CARD
+══════════════════════════════════════════ */
+.rm-card {
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-hover) 100%);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--card-accent, var(--border-mid));
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.rm-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+  border-color: var(--border-mid);
+}
+
+/* ── Card header: badge + vote ── */
+.rm-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* ── Vote button ── */
+.vote-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-subtle);
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: color 130ms ease, border-color 130ms ease, background 130ms ease, transform 120ms ease;
+}
+
+.vote-btn:hover {
+  color: var(--amber);
+  border-color: rgba(251, 191, 36, 0.45);
+  background: rgba(251, 191, 36, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ── Card title ── */
+.rm-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+/* ── Card description ── */
+.rm-card-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── ETA chip ── */
+.rm-card-eta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  width: fit-content;
+}
+
+
+/* ══════════════════════════════════════════
+   MY FEATURE REQUESTS SECTION
+══════════════════════════════════════════ */
+.fr-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.fr-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.fr-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.fr-section-icon { color: var(--amber); }
+
+.fr-section-count {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-mid);
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+/* ── FR list ── */
+.fr-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── FR item row ── */
+.fr-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-hover) 100%);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--fr-accent, var(--border-mid));
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  transition: transform 130ms ease, box-shadow 130ms ease, border-color 130ms ease;
+}
+
+.fr-item:hover {
+  transform: translateX(3px);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  border-color: var(--border-mid);
+}
+
+/* ── Accent dot ── */
+.fr-item-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fr-accent, var(--border-mid));
+  box-shadow: 0 0 6px color-mix(in srgb, var(--fr-accent, var(--border-mid)) 50%, transparent);
+}
+
+/* ── FR item body ── */
+.fr-item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fr-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fr-item-reason {
+  font-size: 11px;
+  color: var(--red);
+  opacity: 0.8;
+  line-height: 1.4;
+}

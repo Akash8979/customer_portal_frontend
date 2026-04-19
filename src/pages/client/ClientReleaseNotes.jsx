@@ -1,8 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
+import { Tag, Calendar, Zap, FileText } from 'lucide-react';
 import { listReleases } from '../../api/releases';
 import Badge from '../../components/shared/Badge';
 import { shortDate } from '../../utils/formatters';
 import './ClientReleaseNotes.css';
+
+const STATUS_ACCENT = {
+  PUBLISHED:  'var(--green)',
+  IN_TESTING: 'var(--amber)',
+  DRAFT:      'var(--text-dim)',
+};
 
 export default function ClientReleaseNotes() {
   const { data, isLoading } = useQuery({
@@ -10,34 +17,94 @@ export default function ClientReleaseNotes() {
     queryFn: () => listReleases({ page_size: 50 }).then((r) => r.data.data || []),
   });
 
+  const releases = data || [];
+
   return (
     <div className="page">
+
+      {/* ── Header ── */}
       <div className="page-header">
-        <h1 className="page-title">Release Notes</h1>
+        <div>
+          <h1 className="page-title">Release Notes</h1>
+          <p className="page-subtitle">What's new, fixed, and improved</p>
+        </div>
+        {!isLoading && (
+          <span className="rn-total-chip">{releases.length} releases</span>
+        )}
       </div>
-      {isLoading && <p>Loading…</p>}
-      <div className="releases-list">
-        {(data || []).map((r) => (
-          <div key={r.id} className="release-entry">
-            <div className="release-entry-header">
-              <div>
-                <span className="release-ver">v{r.version}</span>
-                <span className="release-name">{r.title}</span>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                {r.is_hotfix && <Badge label="Hotfix" variant="danger" />}
-                <span className="release-dt">{shortDate(r.release_date)}</span>
-              </div>
+
+      {/* ── Loading ── */}
+      {isLoading && (
+        <div className="rn-list">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rn-card rn-card--skeleton" />
+          ))}
+        </div>
+      )}
+
+      {/* ── Release list ── */}
+      {!isLoading && (
+        <div className="rn-list">
+          {releases.length === 0 && (
+            <div className="rn-empty">
+              <FileText size={28} />
+              <span>No release notes yet</span>
             </div>
-            {r.summary && <p className="release-summary">{r.summary}</p>}
-            {r.release_notes && (
-              <div className="release-notes-body">
-                <pre>{r.release_notes}</pre>
+          )}
+
+          {releases.map((r) => {
+            const accent = STATUS_ACCENT[r.status] || 'var(--border-mid)';
+            return (
+              <div
+                key={r.id}
+                className="rn-card"
+                style={{ '--rn-accent': accent }}
+              >
+
+                {/* ── Card header ── */}
+                <div className="rn-card-header">
+                  <div className="rn-card-header-left">
+                    <span className="rn-ver">
+                      <Tag size={11} />
+                      v{r.version}
+                    </span>
+                    <h2 className="rn-title">{r.title}</h2>
+                  </div>
+
+                  <div className="rn-card-header-right">
+                    {r.is_hotfix && (
+                      <span className="rn-hotfix-badge">
+                        <Zap size={10} />
+                        Hotfix
+                      </span>
+                    )}
+                    <Badge status={r.status} />
+                    {r.release_date && (
+                      <span className="rn-date">
+                        <Calendar size={11} />
+                        {shortDate(r.release_date)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* ── Summary ── */}
+                {r.summary && (
+                  <p className="rn-summary">{r.summary}</p>
+                )}
+
+                {/* ── Full notes ── */}
+                {r.release_notes && (
+                  <div className="rn-notes">
+                    <pre>{r.release_notes}</pre>
+                  </div>
+                )}
+
               </div>
-            )}
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

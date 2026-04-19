@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listReleases, createRelease, getRelease, updateRelease } from '../../api/releases';
-import { useAI } from '../../hooks/useAI';
 import DataTable from '../../components/shared/DataTable';
 import Badge from '../../components/shared/Badge';
 import Button from '../../components/shared/Button';
@@ -11,7 +10,6 @@ import './Releases.css';
 
 export default function Releases() {
   const qc = useQueryClient();
-  const ai = useAI();
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ version: '', title: '', is_hotfix: false, release_date: '' });
@@ -40,12 +38,7 @@ export default function Releases() {
     <div className="page">
       <div className="page-header">
         <h1 className="page-title">Releases</h1>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Button variant="ai" size="sm" onClick={() => ai.draftReleaseNotes({ version: 'next', features: [], bug_fixes: [] })}>
-            ✦ Draft Release Notes
-          </Button>
-          <Button variant="primary" size="sm" onClick={() => setShowCreate(true)}>+ New Release</Button>
-        </div>
+        <Button variant="primary" size="sm" onClick={() => setShowCreate(true)}>+ New Release</Button>
       </div>
 
       <DataTable

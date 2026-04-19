@@ -1,18 +1,117 @@
 .kpi-tile {
-  background: var(--bg-card);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(140deg, var(--bg-card) 0%, var(--bg-hover) 100%);
   border: 1px solid var(--border);
-  border-top: 3px solid var(--accent);
   border-radius: var(--radius-md);
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-3);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), border-color var(--transition);
 }
-.kpi-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
-.kpi-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.kpi-trend { font-size: 12px; font-weight: 500; margin-top: var(--space-1); }
+
+/* Top-left corner bracket */
+.kpi-tile::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid var(--accent);
+  border-left: 2px solid var(--accent);
+  border-radius: 2px 0 0 0;
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity var(--transition), width var(--transition), height var(--transition);
+}
+
+/* Bottom-right corner bracket */
+.kpi-tile::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  border-bottom: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
+  border-radius: 0 0 2px 0;
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity var(--transition), width var(--transition), height var(--transition);
+}
+
+.kpi-tile:hover {
+  border-color: var(--border-mid);
+  box-shadow: var(--shadow);
+}
+
+.kpi-tile:hover::before,
+.kpi-tile:hover::after {
+  width: 18px;
+  height: 18px;
+  opacity: 1;
+}
+
+/* ── Top row: value+label on left, icon box on right ── */
+.kpi-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.kpi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Icon box — accent-tinted rounded square, top-right ── */
+.kpi-icon-box {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.kpi-tile:hover .kpi-icon-box {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.kpi-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.kpi-sublabel {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.kpi-trend { font-size: 12px; font-weight: 500; }
 .kpi-trend--up   { color: var(--red); }
 .kpi-trend--down { color: var(--green); }
 .kpi-trend--flat { color: var(--text-muted); }
-.kpi-icon { font-size: 20px; margin-bottom: var(--space-2); }
-.kpi-sublabel { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
