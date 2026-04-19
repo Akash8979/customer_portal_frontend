@@ -4,9 +4,7 @@ import { getOnboarding } from '../../api/onboarding';
 import { listTickets } from '../../api/tickets';
 import Card from '../../components/shared/Card';
 import Badge from '../../components/shared/Badge';
-import Button from '../../components/shared/Button';
 import HealthBar from '../../components/shared/HealthBar';
-import KpiTile from '../../components/shared/KpiTile';
 import { shortDate } from '../../utils/formatters';
 import './Client360.css';
 
@@ -59,22 +57,18 @@ export default function Client360() {
             <span className="pct-label">{project.overall_completion_pct}%</span>
           </div>
           <HealthBar score={project.overall_completion_pct} />
-          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {(project.phases || []).map((phase) => (
-              <div key={phase.id} className="phase-row">
-                <span className="phase-name">{phase.name}</span>
-                <div style={{ flex: 1 }}><HealthBar score={phase.completion_pct} showLabel={false} /></div>
-                <Badge status={phase.status} />
-              </div>
-            ))}
+          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {(project.phases || []).map((phase) => {
+              const accent = phase.status === 'COMPLETE' ? 'var(--green)' : phase.status === 'IN_PROGRESS' ? 'var(--amber)' : phase.status === 'BLOCKED' ? 'var(--red)' : 'var(--border-mid)';
+              return (
+                <div key={phase.id} className="phase-row" style={{ '--phase-accent': accent }}>
+                  <span className="phase-name">{phase.name}</span>
+                  <div style={{ flex: 1 }}><HealthBar score={phase.completion_pct} showLabel={false} /></div>
+                  <Badge status={phase.status} />
+                </div>
+              );
+            })}
           </div>
-          {project.health_score === 'AT_RISK' && (
-            <div style={{ marginTop: 12 }}>
-              <Button variant="ai" size="sm" onClick={() => ai.onboardingRecovery({ onboarding_data: project, days_behind: 14 })}>
-                ✦ Recovery Plan
-              </Button>
-            </div>
-          )}
         </Card>
 
         {/* Recent tickets */}

@@ -27,7 +27,7 @@ const CATEGORY_OPTIONS = [
   { value: 'PERFORMANCE_ISSUE',    label: 'Performance Issue' },
 ];
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 10;
 
 export default function MyTickets() {
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ export default function MyTickets() {
           <h1 className="page-title">My Tickets</h1>
           <p className="page-subtitle">{total} ticket{total !== 1 ? 's' : ''}</p>
         </div>
-        <Button variant="primary" size="sm" onClick={() => navigate('/client/tickets/new')}>+ Raise Ticket</Button>
+        <Button variant="primary" onClick={() => navigate('/client/tickets/new')}>+ Raise Ticket</Button>
       </div>
 
       <div className="filter-bar">

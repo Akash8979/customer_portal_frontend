@@ -178,7 +178,7 @@ export default function UserManagement() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['users', roleFilter, page],
-    queryFn: () => listUsers({ role: roleFilter, page, page_size: 20 }).then((r) => r.data),
+    queryFn: () => listUsers({ ...(roleFilter && { role: roleFilter }), page, page_size: 10 }).then((r) => r.data),
   });
 
   const { data: rolePerms } = useQuery({
@@ -370,7 +370,7 @@ export default function UserManagement() {
       {/* ── Table ── */}
       <DataTable
         columns={columns} rows={rows} loading={isLoading}
-        page={page} pageSize={20} total={data?.total || 0} onPageChange={setPage}
+        page={page} pageSize={10} total={data?.total || 0} onPageChange={setPage}
       />
 
       {/* ── Create User Modal ── */}

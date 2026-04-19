@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 const useAppStore = create((set, get) => ({
   // ── Theme ─────────────────────────────────────────────────────────────────
-  theme: localStorage.getItem('theme') || 'dark',
+  theme: localStorage.getItem('theme') || 'light',
   toggleTheme: () => {
     const next = get().theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', next);

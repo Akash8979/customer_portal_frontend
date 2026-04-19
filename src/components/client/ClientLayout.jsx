@@ -47,8 +47,8 @@ export default function ClientLayout() {
           <span className="brand-icon">◈</span>
           {!collapsed && (
             <div>
-              <div className="brand-name">{user?.tenant_name || 'Portal'}</div>
-              <div className="brand-sub">Customer Portal</div>
+              <div className="brand-name">Meridian</div>
+              <div className="brand-sub">{user?.tenant_name || 'Customer Portal'}</div>
             </div>
           )}
         </div>

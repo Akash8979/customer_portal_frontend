@@ -16,8 +16,8 @@ const NAV = [
   { to: '/internal/delivery',    label: 'Delivery',    icon: '◈' },
   { to: '/internal/releases',    label: 'Releases',    icon: '◎' },
   { to: '/internal/onboarding',  label: 'Onboarding',  icon: '◷' },
-  { to: '/internal/agent',       label: 'AI Console',  icon: '✦', roles: ['ADMIN', 'LEAD'] },
   { to: '/internal/users',       label: 'Users',       icon: '◡', roles: ['ADMIN'] },
+  { to: '/internal/audit-log',   label: 'Audit Log',   icon: '⊟', roles: ['ADMIN'] },
 ];
 
 export default function InternalLayout() {
@@ -50,7 +50,7 @@ export default function InternalLayout() {
           <span className="brand-icon">◈</span>
           {!collapsed && (
             <>
-              <span className="brand-name">Navigator</span>
+              <span className="brand-name">Meridian</span>
               <span className="brand-badge">Internal</span>
             </>
           )}

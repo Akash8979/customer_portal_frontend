@@ -8,6 +8,14 @@ import { shortDate } from '../../utils/formatters';
 import './DeliveryBoard.css';
 
 const COLUMNS = ['BACKLOG', 'PLANNED', 'IN_DEV', 'IN_QA', 'IN_STAGING', 'RELEASED'];
+const COL_ACCENT = {
+  BACKLOG: 'var(--text-dim)',
+  PLANNED: 'var(--blue)',
+  IN_DEV: 'var(--amber)',
+  IN_QA: 'var(--purple)',
+  IN_STAGING: 'var(--orange)',
+  RELEASED: 'var(--green)',
+};
 
 export default function DeliveryBoard() {
   const qc = useQueryClient();
@@ -40,7 +48,7 @@ export default function DeliveryBoard() {
 
       <div className="delivery-board">
         {COLUMNS.map((col) => (
-          <div key={col} className="board-col">
+          <div key={col} className="board-col" style={{ '--col-accent': COL_ACCENT[col] }}>
             <div className="col-header">
               <span className="col-title">{col.replace(/_/g, ' ')}</span>
               <span className="col-count">{features.filter((f) => f.status === col).length}</span>

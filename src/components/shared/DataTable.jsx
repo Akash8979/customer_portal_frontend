@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import './DataTable.css';
 import EmptyState from './EmptyState';
+import Pagination from './Pagination';
 
 export default function DataTable({
   columns, rows, onRowClick,
-  page = 1, pageSize = 20, total = 0, onPageChange,
+  page = 1, pageSize = 10, total = 0, onPageChange,
   loading = false,
 }) {
   const [sortCol, setSortCol] = useState(null);
@@ -63,24 +64,13 @@ export default function DataTable({
           </tbody>
         </table>
       </div>
-      {total > pageSize && (
-        <div className="datatable-pagination">
-          <span className="pagination-info">
-            {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
-          </span>
-          <div className="pagination-controls">
-            <button onClick={() => onPageChange?.(page - 1)} disabled={page <= 1}>‹</button>
-            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                className={p === page ? 'active' : ''}
-                onClick={() => onPageChange?.(p)}
-              >{p}</button>
-            ))}
-            <button onClick={() => onPageChange?.(page + 1)} disabled={page >= totalPages}>›</button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageSize={pageSize}
+        onChange={onPageChange}
+      />
     </div>
   );
 }

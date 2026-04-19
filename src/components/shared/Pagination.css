@@ -1,0 +1,57 @@
+.pg-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.pg-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.pg-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pg-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.pg-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-mid);
+}
+.pg-btn:disabled { opacity: 0.35; cursor: default; }
+
+.pg-num { min-width: 30px; }
+.pg-num--active {
+  background: rgba(79, 142, 247, 0.12);
+  border-color: var(--blue);
+  color: var(--blue);
+  font-weight: 600;
+}
+.pg-num--active:hover { background: rgba(79, 142, 247, 0.18); }
+
+.pg-dots {
+  padding: 0 4px;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 30px;
+  user-select: none;
+}

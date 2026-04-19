@@ -18,9 +18,9 @@ import Client360 from '../pages/internal/Client360';
 import DeliveryBoard from '../pages/internal/DeliveryBoard';
 import Releases from '../pages/internal/Releases';
 import OnboardingList from '../pages/internal/OnboardingList';
-import AgentConsole from '../pages/internal/AgentConsole';
 import UserManagement from '../pages/internal/UserManagement';
 import UserEditPage from '../pages/internal/UserEditPage';
+import AuditLog from '../pages/internal/AuditLog';
 
 // Client pages
 import ClientDashboard from '../pages/client/ClientDashboard';
@@ -60,14 +60,6 @@ const router = createBrowserRouter([
       { path: 'releases', element: <Releases /> },
       { path: 'onboarding', element: <OnboardingList /> },
       {
-        path: 'ai-console',
-        element: (
-          <ProtectedRoute allowedRoles={['ADMIN', 'LEAD']}>
-            <AgentConsole />
-          </ProtectedRoute>
-        ),
-      },
-      {
         path: 'users',
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'CLIENT_ADMIN']}>
@@ -80,6 +72,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['ADMIN', 'CLIENT_ADMIN']}>
             <UserEditPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'audit-log',
+        element: (
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AuditLog />
           </ProtectedRoute>
         ),
       },

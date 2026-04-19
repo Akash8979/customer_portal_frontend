@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const TICKET_API = import.meta.env.VITE_TICKET_API_URL || 'http://localhost:9090';
+const TICKET_API = import.meta.env.VITE_TICKET_API_URL;
 // Empty in dev → Vite proxy handles routing. Set VITE_AI_ENGINE_URL on Railway.
-const AI_API = import.meta.env.VITE_AI_ENGINE_URL || '';
+const AI_API = import.meta.env.VITE_AI_ENGINE_URL;
 
 function buildClient(baseURL) {
   const instance = axios.create({ baseURL, withCredentials: true });

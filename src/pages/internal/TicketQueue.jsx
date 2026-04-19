@@ -1,89 +1,219 @@
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { listTickets, updateStatus } from '../../api/tickets';
-import DataTable from '../../components/shared/DataTable';
-import Badge from '../../components/shared/Badge';
+import {
+  Ticket, AlertTriangle, Clock, UserX, Search,
+} from 'lucide-react';
+import { listTickets, getTicketKpis } from '../../api/tickets';
 import SlaTimer from '../../components/shared/SlaTimer';
-import Button from '../../components/shared/Button';
+import FilterSelect from '../../components/shared/FilterSelect';
 import { relativeTime } from '../../utils/formatters';
-import useAppStore from '../../stores/useAppStore';
 import './TicketQueue.css';
 
-const STATUS_OPTIONS = ['', 'OPEN', 'TRIAGED', 'IN_PROGRESS', 'PENDING_CLIENT', 'PENDING_RELEASE', 'RESOLVED', 'CLOSED'];
-const PRIORITY_OPTIONS = ['', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
-const CATEGORY_OPTIONS = ['', 'BUG', 'FEATURE_REQUEST', 'QUESTION', 'ONBOARDING_ISSUE', 'INTEGRATION_ISSUE', 'PERFORMANCE_ISSUE'];
+const COLUMNS = [
+  { key: 'OPEN',            label: 'Open',             accent: 'var(--blue)' },
+  { key: 'TRIAGED',         label: 'Triaged',          accent: 'var(--purple)' },
+  { key: 'IN_PROGRESS',     label: 'In Progress',      accent: 'var(--amber)' },
+  { key: 'PENDING_CLIENT',  label: 'Pending Client',   accent: 'var(--orange)' },
+  { key: 'PENDING_RELEASE', label: 'Pending Release',  accent: 'var(--text-muted)' },
+  { key: 'RESOLVED',        label: 'Resolved',         accent: 'var(--green)' },
+];
+
+const PRIORITY_OPTIONS = [
+  { value: '', label: 'All Priorities' },
+  ...['CRITICAL','HIGH','MEDIUM','LOW'].map((v) => ({ value: v, label: v })),
+];
+const CATEGORY_OPTIONS = [
+  { value: '', label: 'All Types' },
+  ...['BUG','FEATURE_REQUEST','QUESTION','ONBOARDING_ISSUE','INTEGRATION_ISSUE','PERFORMANCE_ISSUE']
+    .map((v) => ({ value: v, label: v.replace(/_/g, ' ') })),
+];
+
+const PRIORITY_DOT = {
+  CRITICAL: 'var(--red)',
+  HIGH:     'var(--orange)',
+  MEDIUM:   'var(--amber)',
+  LOW:      'var(--blue)',
+};
+
+function assigneeInitials(name) {
+  if (!name) return '?';
+  return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+}
 
 export default function TicketQueue() {
   const navigate = useNavigate();
-  const qc = useQueryClient();
-  const { addToast } = useAppStore();
-  const [filters, setFilters] = useState({ status: '', priority: '', category: '', search: '' });
-  const [page, setPage] = useState(1);
+  const [search,   setSearch]   = useState('');
+  const [priority, setPriority] = useState('');
+  const [category, setCategory] = useState('');
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['tickets', filters, page],
-    queryFn: () => listTickets({ ...filters, page, page_size: 20 }).then((r) => r.data),
+  const { data: kpi } = useQuery({
+    queryKey: ['ticket-kpis'],
+    queryFn:  () => getTicketKpis().then((r) => r.data.data),
   });
 
-  const columns = [
-    { key: 'id', label: '#', width: 60, render: (v) => <span className="ticket-id">#{v}</span> },
-    { key: 'title', label: 'Title', render: (v) => <span className="truncate">{v}</span> },
-    { key: 'category', label: 'Type', render: (v) => <Badge status={v} /> },
-    { key: 'priority', label: 'Priority', render: (v) => v ? <Badge priority={v} /> : '—' },
-    { key: 'status', label: 'Status', render: (v) => <Badge status={v} /> },
-    { key: 'sla', label: 'SLA', render: (_, row) => row.sla?.resolution_due_at ? <SlaTimer deadline={row.sla.resolution_due_at} label="Res" /> : '—' },
-    { key: 'assigned_to', label: 'Assignee', render: (v) => v || <span className="dim">Unassigned</span> },
-    { key: 'created_at', label: 'Raised', render: (v) => <span title={v}>{relativeTime(v)}</span> },
-  ];
+  // Fetch all active tickets for the board (no status filter, large page)
+  const { data, isLoading } = useQuery({
+    queryKey: ['tickets-board', { priority, category, search }],
+    queryFn:  () => listTickets({ priority, category, search, page_size: 200 }).then((r) => r.data),
+  });
 
-  function setFilter(key, val) {
-    setFilters((f) => ({ ...f, [key]: val }));
-    setPage(1);
-  }
+  const allTickets = data?.data || [];
+  const total      = data?.total || 0;
+
+  const hasFilters = search || priority || category;
+
+  const byStatus = useMemo(() => {
+    const map = {};
+    COLUMNS.forEach((c) => { map[c.key] = []; });
+    allTickets.forEach((t) => {
+      if (map[t.status]) map[t.status].push(t);
+    });
+    return map;
+  }, [allTickets]);
 
   return (
-    <div className="page">
+    <div className="page tq-page">
+
+      {/* ── Header ── */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">Ticket Queue</h1>
-          <p className="page-subtitle">{data?.total ?? 0} tickets</p>
+          <h1 className="page-title">Ticket Board</h1>
+          <p className="page-subtitle">{total} ticket{total !== 1 ? 's' : ''}</p>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* ── Stats ── */}
+      <div className="tq-stats-grid">
+        <div className="tq-stat">
+          <div className="tq-stat-icon tq-stat-icon--blue"><Ticket size={16} /></div>
+          <div>
+            <div className="tq-stat-value">{kpi?.by_status?.open ?? 0}</div>
+            <div className="tq-stat-label">Open</div>
+          </div>
+        </div>
+        <div className="tq-stat">
+          <div className="tq-stat-icon tq-stat-icon--amber"><Clock size={16} /></div>
+          <div>
+            <div className="tq-stat-value">{kpi?.by_status?.in_progress ?? 0}</div>
+            <div className="tq-stat-label">In Progress</div>
+          </div>
+        </div>
+        <div className="tq-stat">
+          <div className="tq-stat-icon tq-stat-icon--red"><AlertTriangle size={16} /></div>
+          <div>
+            <div className="tq-stat-value">{kpi?.by_priority?.critical ?? 0}</div>
+            <div className="tq-stat-label">Critical</div>
+          </div>
+        </div>
+        <div className="tq-stat">
+          <div className="tq-stat-icon tq-stat-icon--orange"><UserX size={16} /></div>
+          <div>
+            <div className="tq-stat-value">{kpi?.by_status?.pending_client ?? 0}</div>
+            <div className="tq-stat-label">Pending Client</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Filters ── */}
       <div className="filter-bar">
-        <input
-          className="filter-search" placeholder="Search tickets…"
-          value={filters.search} onChange={(e) => setFilter('search', e.target.value)}
-        />
-        {[
-          { key: 'status', options: STATUS_OPTIONS, label: 'Status' },
-          { key: 'priority', options: PRIORITY_OPTIONS, label: 'Priority' },
-          { key: 'category', options: CATEGORY_OPTIONS, label: 'Type' },
-        ].map(({ key, options, label }) => (
-          <select key={key} value={filters[key]} onChange={(e) => setFilter(key, e.target.value)}>
-            <option value="">{label}</option>
-            {options.filter(Boolean).map((o) => <option key={o} value={o}>{o.replace(/_/g, ' ')}</option>)}
-          </select>
-        ))}
-        {Object.values(filters).some(Boolean) && (
-          <Button variant="ghost" size="sm" onClick={() => { setFilters({ status: '', priority: '', category: '', search: '' }); setPage(1); }}>
+        <div className="tq-search-wrap">
+          <Search size={13} className="tq-search-icon" />
+          <input
+            className="tq-search"
+            placeholder="Search tickets…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <FilterSelect value={priority} options={PRIORITY_OPTIONS} onChange={setPriority} placeholder="All Priorities" />
+        <FilterSelect value={category} options={CATEGORY_OPTIONS} onChange={setCategory} placeholder="All Types" />
+        {hasFilters && (
+          <button className="tq-clear-btn" onClick={() => { setSearch(''); setPriority(''); setCategory(''); }}>
             Clear
-          </Button>
+          </button>
         )}
       </div>
 
-      <DataTable
-        columns={columns}
-        rows={data?.data || []}
-        loading={isLoading}
-        page={page}
-        pageSize={20}
-        total={data?.total || 0}
-        onPageChange={setPage}
-        onRowClick={(row) => navigate(`/internal/tickets/${row.id}`)}
-      />
+      {/* ── Kanban Board ── */}
+      {isLoading ? (
+        <div className="tq-board">
+          {COLUMNS.map((col) => (
+            <div key={col.key} className="tq-col" style={{ '--col-accent': col.accent }}>
+              <div className="tq-col-header">
+                <span className="tq-col-title">{col.label}</span>
+                <span className="tq-col-count">—</span>
+              </div>
+              <div className="tq-col-cards">
+                {[1, 2, 3].map((i) => <div key={i} className="tq-card-skeleton" />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="tq-board">
+          {COLUMNS.map((col) => {
+            const colTickets = byStatus[col.key] || [];
+            return (
+              <div key={col.key} className="tq-col" style={{ '--col-accent': col.accent }}>
+                {/* Column header */}
+                <div className="tq-col-header">
+                  <span className="tq-col-title">{col.label}</span>
+                  <span className="tq-col-count">{colTickets.length}</span>
+                </div>
+
+                {/* Cards */}
+                <div className="tq-col-cards">
+                  {colTickets.length === 0 && (
+                    <div className="tq-col-empty">No tickets</div>
+                  )}
+                  {colTickets.map((t) => (
+                    <div
+                      key={t.id}
+                      className="tq-card"
+                      style={{ '--priority-dot': PRIORITY_DOT[t.priority] || 'var(--border-mid)' }}
+                      onClick={() => navigate(`/internal/tickets/${t.id}`)}
+                    >
+                      {/* Top: type chip + priority dot */}
+                      <div className="tq-card-top">
+                        {t.category && (
+                          <span className="tq-cat-chip">
+                            {t.category.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                        {t.priority && (
+                          <span className="tq-priority-dot" title={t.priority} />
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <div className="tq-card-title">{t.title}</div>
+
+                      {/* SLA if present */}
+                      {t.sla?.resolution_due_at && (
+                        <SlaTimer deadline={t.sla.resolution_due_at} label="SLA" />
+                      )}
+
+                      {/* Footer: ID + time + assignee avatar */}
+                      <div className="tq-card-footer">
+                        <span className="tq-id-chip">#{t.id}</span>
+                        <span className="tq-card-time">{relativeTime(t.created_at)}</span>
+                        <div
+                          className="tq-avatar"
+                          title={t.assigned_to || 'Unassigned'}
+                          style={t.assigned_to ? {} : { opacity: 0.4 }}
+                        >
+                          {assigneeInitials(t.assigned_to)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
