@@ -18,6 +18,7 @@ import Client360 from '../pages/internal/Client360';
 import DeliveryBoard from '../pages/internal/DeliveryBoard';
 import Releases from '../pages/internal/Releases';
 import OnboardingList from '../pages/internal/OnboardingList';
+import OnboardingDetail from '../pages/internal/OnboardingDetail';
 import UserManagement from '../pages/internal/UserManagement';
 import UserEditPage from '../pages/internal/UserEditPage';
 import AuditLog from '../pages/internal/AuditLog';
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
       { path: 'delivery', element: <DeliveryBoard /> },
       { path: 'releases', element: <Releases /> },
       { path: 'onboarding', element: <OnboardingList /> },
+      { path: 'onboarding/:id', element: <OnboardingDetail /> },
       {
         path: 'users',
         element: (

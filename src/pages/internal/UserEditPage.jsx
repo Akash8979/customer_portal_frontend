@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -43,20 +43,30 @@ const PERM_LABEL = {
   ai_access: 'AI Access',
 };
 
-function useFormState(user) {
-  const init = user ? {
+function buildInit(user) {
+  if (!user) return null;
+  return {
     user_name:          user.user_name,
     role:               user.role,
     tenant_id:          user.tenant_id || '',
     tenant_name:        user.tenant_name || '',
     is_active:          user.is_active,
     custom_permissions: user.custom_permissions || [],
-  } : null;
+  };
+}
 
-  const [form, setForm]   = useState(init);
+function useFormState(user) {
+  const [form, setForm]   = useState(null);
   const [dirty, setDirty] = useState(false);
 
-  function reset() { setForm(init); setDirty(false); }
+  useEffect(() => {
+    if (user) {
+      setForm(buildInit(user));
+      setDirty(false);
+    }
+  }, [user]);
+
+  function reset() { setForm(buildInit(user)); setDirty(false); }
   function patch(key, value) {
     setForm((f) => ({ ...f, [key]: value }));
     setDirty(true);

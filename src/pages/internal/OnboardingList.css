@@ -35,6 +35,12 @@
 
 .ob-stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
 .ob-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+.ob-stat-sub   { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+.ob-stats-grid--6 { grid-template-columns: repeat(6, 1fr); }
+
+.ob-stat-icon--amber { background: color-mix(in srgb, var(--amber) 14%, transparent); color: var(--amber); border: 1px solid color-mix(in srgb, var(--amber) 22%, transparent); }
+.ob-stat-icon--blue  { background: color-mix(in srgb, var(--blue,  #60a5fa) 14%, transparent); color: var(--blue, #60a5fa); border: 1px solid color-mix(in srgb, var(--blue, #60a5fa) 22%, transparent); }
 
 
 /* ══════════════════════════════════════════
@@ -190,7 +196,8 @@
   color: var(--text-dim);
 }
 
-.ob-meta-item--urgent { color: var(--orange); font-weight: 600; }
+.ob-meta-item--urgent  { color: var(--orange); font-weight: 600; }
+.ob-meta-item--overdue { color: var(--red); font-weight: 600; }
 
 .ob-days-pill {
   font-size: 10px;
@@ -201,6 +208,12 @@
   border-radius: 100px;
   padding: 1px 6px;
   margin-left: 4px;
+}
+
+.ob-days-pill--overdue {
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  border-color: color-mix(in srgb, var(--red) 25%, transparent);
 }
 
 /* ── Footer ── */
@@ -271,5 +284,6 @@
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
-@media (max-width: 900px) { .ob-stats-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .ob-card-grid  { grid-template-columns: 1fr; } }
+@media (max-width: 1200px) { .ob-stats-grid--6 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px)  { .ob-stats-grid, .ob-stats-grid--6 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .ob-card-grid  { grid-template-columns: 1fr; } }

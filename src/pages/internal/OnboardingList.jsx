@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import {
   Rocket, CheckCircle2, AlertTriangle, ShieldAlert,
   Search, User, CalendarDays, ArrowRight, Plus,
+  TrendingUp, Clock, BarChart3,
 } from 'lucide-react';
-import { listOnboarding, createOnboarding } from '../../api/onboarding';
+import { listOnboarding, createOnboarding, getOnboardingStats } from '../../api/onboarding';
 import Badge from '../../components/shared/Badge';
 import Button from '../../components/shared/Button';
 import HealthBar from '../../components/shared/HealthBar';
@@ -14,29 +15,31 @@ import FilterSelect from '../../components/shared/FilterSelect';
 import Pagination from '../../components/shared/Pagination';
 import { shortDate } from '../../utils/formatters';
 import useAppStore from '../../stores/useAppStore';
-
-const PAGE_SIZE = 10;
 import './OnboardingList.css';
 
+const PAGE_SIZE = 10;
+
 const HEALTH_OPTIONS = [
-  { value: '', label: 'All Health' },
-  { value: 'ON_TRACK', label: 'On Track' },
-  { value: 'NEEDS_ATTENTION', label: 'Needs Attention' },
-  { value: 'AT_RISK', label: 'At Risk' },
+  { value: '',          label: 'All Health' },
+  { value: 'ON_TRACK',  label: 'On Track' },
+  { value: 'AT_RISK',   label: 'At Risk' },
+  { value: 'BLOCKED',   label: 'Blocked' },
 ];
 
 const STATUS_OPTIONS = [
-  { value: '', label: 'All Statuses' },
+  { value: '',            label: 'All Statuses' },
   { value: 'NOT_STARTED', label: 'Not Started' },
   { value: 'IN_PROGRESS', label: 'In Progress' },
-  { value: 'COMPLETE', label: 'Complete' },
-  { value: 'ON_HOLD', label: 'On Hold' },
+  { value: 'ON_TRACK',    label: 'On Track' },
+  { value: 'AT_RISK',     label: 'At Risk' },
+  { value: 'BLOCKED',     label: 'Blocked' },
+  { value: 'COMPLETED',   label: 'Completed' },
 ];
 
 const HEALTH_ACCENT = {
-  ON_TRACK:        'var(--green)',
-  NEEDS_ATTENTION: 'var(--orange)',
-  AT_RISK:         'var(--red)',
+  ON_TRACK: 'var(--green)',
+  AT_RISK:  'var(--orange)',
+  BLOCKED:  'var(--red)',
 };
 
 function daysUntil(dateStr) {
@@ -50,22 +53,28 @@ export default function OnboardingList() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { addToast } = useAppStore();
-  const [search,      setSearch]      = useState('');
-  const [healthFilter, setHealth]     = useState('');
-  const [statusFilter, setStatus]     = useState('');
-  const [page,        setPage]        = useState(1);
-  const [showCreate,  setShowCreate]  = useState(false);
-  const [form,        setForm]        = useState(EMPTY_FORM);
+  const [search,       setSearch]      = useState('');
+  const [healthFilter, setHealth]      = useState('');
+  const [statusFilter, setStatus]      = useState('');
+  const [page,         setPage]        = useState(1);
+  const [showCreate,   setShowCreate]  = useState(false);
+  const [form,         setForm]        = useState(EMPTY_FORM);
 
   const { data, isLoading } = useQuery({
     queryKey: ['onboarding-list'],
     queryFn:  () => listOnboarding({ page_size: 200 }).then((r) => r.data),
   });
 
+  const { data: statsData } = useQuery({
+    queryKey: ['onboarding-stats'],
+    queryFn:  () => getOnboardingStats().then((r) => r.data.data),
+  });
+
   const createMut = useMutation({
     mutationFn: createOnboarding,
     onSuccess: () => {
       qc.invalidateQueries(['onboarding-list']);
+      qc.invalidateQueries(['onboarding-stats']);
       setShowCreate(false);
       setForm(EMPTY_FORM);
       addToast({ type: 'success', message: 'Onboarding project created.' });
@@ -89,10 +98,54 @@ export default function OnboardingList() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
   const pagedRows  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const onTrack  = rows.filter((r) => r.health_score === 'ON_TRACK').length;
-  const atRisk   = rows.filter((r) => r.health_score === 'AT_RISK').length;
-  const blockers = rows.reduce((acc, r) => acc + (r.blocker_count || 0), 0);
   const hasFilters = search || healthFilter || statusFilter;
+
+  const s = statsData || {};
+
+  const insightCards = [
+    {
+      icon: <Rocket size={16} />,
+      color: 'purple',
+      value: s.total ?? rows.length,
+      label: 'Total Projects',
+      sub: s.status ? `${s.status.IN_PROGRESS ?? 0} in progress` : null,
+    },
+    {
+      icon: <CheckCircle2 size={16} />,
+      color: 'green',
+      value: s.health?.ON_TRACK ?? rows.filter((r) => r.health_score === 'ON_TRACK').length,
+      label: 'On Track',
+      sub: s.completed_this_month != null ? `${s.completed_this_month} completed this month` : null,
+    },
+    {
+      icon: <AlertTriangle size={16} />,
+      color: 'orange',
+      value: (s.health?.AT_RISK ?? 0) + (s.health?.BLOCKED ?? 0) || rows.filter((r) => r.health_score === 'AT_RISK' || r.health_score === 'BLOCKED').length,
+      label: 'At Risk / Blocked',
+      sub: s.overdue != null ? `${s.overdue} overdue` : null,
+    },
+    {
+      icon: <ShieldAlert size={16} />,
+      color: 'red',
+      value: s.open_blockers ?? rows.reduce((acc, r) => acc + (r.blocker_count || 0), 0),
+      label: 'Open Blockers',
+      sub: null,
+    },
+    {
+      icon: <CalendarDays size={16} />,
+      color: 'amber',
+      value: s.going_live_soon ?? '—',
+      label: 'Going Live (30d)',
+      sub: s.overdue != null ? `${s.overdue} overdue` : null,
+    },
+    {
+      icon: <TrendingUp size={16} />,
+      color: 'blue',
+      value: s.avg_completion_pct != null ? `${s.avg_completion_pct}%` : '—',
+      label: 'Avg Completion',
+      sub: null,
+    },
+  ];
 
   return (
     <div className="page">
@@ -108,36 +161,18 @@ export default function OnboardingList() {
         </Button>
       </div>
 
-      {/* ── Stats ── */}
-      <div className="ob-stats-grid">
-        <div className="ob-stat">
-          <div className="ob-stat-icon ob-stat-icon--purple"><Rocket size={16} /></div>
-          <div>
-            <div className="ob-stat-value">{rows.length}</div>
-            <div className="ob-stat-label">Total Projects</div>
+      {/* ── Insight strip ── */}
+      <div className="ob-stats-grid ob-stats-grid--6">
+        {insightCards.map((card) => (
+          <div key={card.label} className="ob-stat">
+            <div className={`ob-stat-icon ob-stat-icon--${card.color}`}>{card.icon}</div>
+            <div>
+              <div className="ob-stat-value">{card.value}</div>
+              <div className="ob-stat-label">{card.label}</div>
+              {card.sub && <div className="ob-stat-sub">{card.sub}</div>}
+            </div>
           </div>
-        </div>
-        <div className="ob-stat">
-          <div className="ob-stat-icon ob-stat-icon--green"><CheckCircle2 size={16} /></div>
-          <div>
-            <div className="ob-stat-value">{onTrack}</div>
-            <div className="ob-stat-label">On Track</div>
-          </div>
-        </div>
-        <div className="ob-stat">
-          <div className="ob-stat-icon ob-stat-icon--red"><AlertTriangle size={16} /></div>
-          <div>
-            <div className="ob-stat-value">{atRisk}</div>
-            <div className="ob-stat-label">At Risk</div>
-          </div>
-        </div>
-        <div className="ob-stat">
-          <div className="ob-stat-icon ob-stat-icon--orange"><ShieldAlert size={16} /></div>
-          <div>
-            <div className="ob-stat-value">{blockers}</div>
-            <div className="ob-stat-label">Open Blockers</div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* ── Filters ── */}
@@ -176,6 +211,7 @@ export default function OnboardingList() {
             const accent   = HEALTH_ACCENT[project.health_score] || 'var(--border-mid)';
             const days     = daysUntil(project.estimated_go_live);
             const isUrgent = days !== null && days > 0 && days <= 14;
+            const isOverdue = days !== null && days < 0 && project.status !== 'COMPLETED';
             return (
               <div
                 key={project.id}
@@ -183,7 +219,6 @@ export default function OnboardingList() {
                 style={{ '--ob-accent': accent }}
                 onClick={() => navigate(`/internal/onboarding/${project.id}`)}
               >
-                {/* Top: avatar + name + health badge */}
                 <div className="ob-card-top">
                   <div className="ob-card-avatar">
                     {(project.tenant_name || '?')[0].toUpperCase()}
@@ -195,7 +230,6 @@ export default function OnboardingList() {
                   <Badge status={project.health_score} />
                 </div>
 
-                {/* Progress bar */}
                 <div className="ob-card-progress">
                   <div className="ob-progress-label">
                     <span>Progress</span>
@@ -204,7 +238,6 @@ export default function OnboardingList() {
                   <HealthBar score={project.overall_completion_pct ?? 0} />
                 </div>
 
-                {/* Meta: lead + go-live */}
                 <div className="ob-card-meta">
                   {project.assigned_lead && (
                     <span className="ob-meta-item">
@@ -212,14 +245,14 @@ export default function OnboardingList() {
                     </span>
                   )}
                   {project.estimated_go_live && (
-                    <span className={`ob-meta-item${isUrgent ? ' ob-meta-item--urgent' : ''}`}>
+                    <span className={`ob-meta-item${isUrgent ? ' ob-meta-item--urgent' : ''}${isOverdue ? ' ob-meta-item--overdue' : ''}`}>
                       <CalendarDays size={11} />{shortDate(project.estimated_go_live)}
-                      {isUrgent && <span className="ob-days-pill">{days}d left</span>}
+                      {isUrgent  && <span className="ob-days-pill">{days}d left</span>}
+                      {isOverdue && <span className="ob-days-pill ob-days-pill--overdue">{Math.abs(days)}d overdue</span>}
                     </span>
                   )}
                 </div>
 
-                {/* Footer: status + blockers + arrow */}
                 <div className="ob-card-footer">
                   <Badge status={project.status} />
                   <div className="ob-card-footer-right">
