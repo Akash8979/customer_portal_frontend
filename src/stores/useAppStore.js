@@ -48,12 +48,19 @@ const useAppStore = create((set, get) => ({
   notifications: [],
   unreadCount: 0,
   setNotifications: (list) =>
-    set({ notifications: list, unreadCount: list.filter((n) => !n.read).length }),
+    set({ notifications: list, unreadCount: list.filter((n) => !n.is_read).length }),
   markAllRead: () =>
     set((s) => ({
-      notifications: s.notifications.map((n) => ({ ...n, read: true })),
+      notifications: s.notifications.map((n) => ({ ...n, is_read: true })),
       unreadCount: 0,
     })),
+  markOneRead: (id) =>
+    set((s) => {
+      const notifications = s.notifications.map((n) =>
+        n.id === id ? { ...n, is_read: true } : n
+      );
+      return { notifications, unreadCount: notifications.filter((n) => !n.is_read).length };
+    }),
 }));
 
 export default useAppStore;

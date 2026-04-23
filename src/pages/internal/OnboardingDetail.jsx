@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft, CheckCircle2, Circle, AlertTriangle, Clock,
+  ChevronLeft, CheckCircle2, Circle, AlertTriangle, Clock,
   User, CalendarDays, ChevronDown, ChevronRight, Plus,
-  ShieldAlert, Edit3, Save, X,
+  ShieldAlert, Edit3, Save, X, BarChart3,
 } from 'lucide-react';
 import { getOnboarding, updateOnboarding, createPhase, updatePhase, createTask, updateTask } from '../../api/onboarding';
 import Badge from '../../components/shared/Badge';
@@ -102,11 +102,11 @@ export default function OnboardingDetail() {
 
   function startEditProject() {
     setProjectForm({
-      assigned_lead:    data.assigned_lead || '',
-      status:           data.status,
-      health_score:     data.health_score,
+      assigned_lead:     data.assigned_lead || '',
+      status:            data.status,
+      health_score:      data.health_score,
       estimated_go_live: data.estimated_go_live || '',
-      notes:            data.notes || '',
+      notes:             data.notes || '',
     });
     setEditingProject(true);
   }
@@ -142,94 +142,113 @@ export default function OnboardingDetail() {
     ? Math.ceil((new Date(project.estimated_go_live) - Date.now()) / 86400000)
     : null;
 
+  const pct = project.overall_completion_pct ?? 0;
+
   return (
     <div className="page">
 
-      {/* ── Header ── */}
-      <div className="page-header">
+      {/* ── Top navigation row ── */}
+      <div className="od-nav-row">
         <button className="od-back-btn" onClick={() => navigate('/internal/onboarding')}>
-          <ArrowLeft size={14} /> Onboarding
+          <ChevronLeft size={15} /> Back to Onboarding
         </button>
         {!editingProject && (
           <Button variant="ghost" size="sm" icon={<Edit3 size={13} />} onClick={startEditProject}>
-            Edit
+            Edit Project
           </Button>
         )}
       </div>
 
-      {/* ── Hero ── */}
+      {/* ── Hero card ── */}
       <div className="od-hero">
-        <div className="od-hero-avatar">{(project.tenant_name || '?')[0].toUpperCase()}</div>
-        <div className="od-hero-info">
-          <h1 className="od-hero-name">{project.tenant_name}</h1>
-          <span className="od-hero-tenant">{project.tenant_id}</span>
+        <div className="od-hero-top">
+          <div className="od-hero-avatar">{(project.tenant_name || '?')[0].toUpperCase()}</div>
+          <div className="od-hero-identity">
+            <h1 className="od-hero-name">{project.tenant_name}</h1>
+            <span className="od-hero-tenant-id">{project.tenant_id}</span>
+          </div>
           <div className="od-hero-badges">
             <Badge status={project.health_score} />
             <Badge status={project.status} />
           </div>
         </div>
 
-        <div className="od-hero-kpis">
-          <div className="od-kpi">
-            <div className="od-kpi-value">{project.overall_completion_pct ?? 0}%</div>
-            <div className="od-kpi-label">Complete</div>
-          </div>
-          <div className="od-kpi">
-            <div className="od-kpi-value">{completedPhases}/{phases.length}</div>
-            <div className="od-kpi-label">Phases Done</div>
-          </div>
-          <div className="od-kpi">
-            <div className={`od-kpi-value ${blockers.length > 0 ? 'od-kpi-value--red' : ''}`}>{blockers.length}</div>
-            <div className="od-kpi-label">Blockers</div>
-          </div>
-          {daysLeft !== null && (
+        <div className="od-hero-divider" />
+
+        <div className="od-hero-bottom">
+          <div className="od-kpi-strip">
             <div className="od-kpi">
-              <div className={`od-kpi-value ${daysLeft < 0 ? 'od-kpi-value--red' : daysLeft <= 14 ? 'od-kpi-value--orange' : ''}`}>
-                {daysLeft < 0 ? `${Math.abs(daysLeft)}d over` : `${daysLeft}d`}
-              </div>
-              <div className="od-kpi-label">{daysLeft < 0 ? 'Overdue' : 'To Go-Live'}</div>
+              <div className="od-kpi-value">{pct}%</div>
+              <div className="od-kpi-label">Complete</div>
             </div>
-          )}
+            <div className="od-kpi-sep" />
+            <div className="od-kpi">
+              <div className="od-kpi-value">{completedPhases}/{phases.length}</div>
+              <div className="od-kpi-label">Phases Done</div>
+            </div>
+            <div className="od-kpi-sep" />
+            <div className="od-kpi">
+              <div className={`od-kpi-value ${blockers.length > 0 ? 'od-kpi-value--red' : ''}`}>{blockers.length}</div>
+              <div className="od-kpi-label">Blockers</div>
+            </div>
+            {daysLeft !== null && (
+              <>
+                <div className="od-kpi-sep" />
+                <div className="od-kpi">
+                  <div className={`od-kpi-value ${daysLeft < 0 ? 'od-kpi-value--red' : daysLeft <= 14 ? 'od-kpi-value--orange' : ''}`}>
+                    {daysLeft < 0 ? `${Math.abs(daysLeft)}d over` : `${daysLeft}d`}
+                  </div>
+                  <div className="od-kpi-label">{daysLeft < 0 ? 'Overdue' : 'To Go-Live'}</div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="od-hero-progress">
+            <div className="od-hero-progress-label">
+              <span><BarChart3 size={11} /> Progress</span>
+              <span className="od-hero-progress-pct">{pct}%</span>
+            </div>
+            <HealthBar score={pct} />
+          </div>
         </div>
       </div>
 
-      {/* ── Progress bar ── */}
-      <div className="od-progress-wrap">
-        <HealthBar score={project.overall_completion_pct ?? 0} />
-      </div>
-
+      {/* ── Body: sidebar + main ── */}
       <div className="od-body">
 
-        {/* ── Left: meta / edit ── */}
+        {/* ── Sidebar ── */}
         <div className="od-sidebar">
+
+          {/* Project Details card */}
           <div className="od-card">
             <div className="od-card-title">Project Details</div>
 
             {editingProject ? (
               <div className="od-edit-form">
-                <div className="form-field">
-                  <label>Status</label>
-                  <select value={projectForm.status} onChange={(e) => setProjectForm((f) => ({ ...f, status: e.target.value }))}>
+                <div className="od-field">
+                  <label className="od-field-label">Status</label>
+                  <select className="od-field-input" value={projectForm.status} onChange={(e) => setProjectForm((f) => ({ ...f, status: e.target.value }))}>
                     {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
                   </select>
                 </div>
-                <div className="form-field">
-                  <label>Health</label>
-                  <select value={projectForm.health_score} onChange={(e) => setProjectForm((f) => ({ ...f, health_score: e.target.value }))}>
+                <div className="od-field">
+                  <label className="od-field-label">Health</label>
+                  <select className="od-field-input" value={projectForm.health_score} onChange={(e) => setProjectForm((f) => ({ ...f, health_score: e.target.value }))}>
                     {HEALTH_OPTIONS.map((h) => <option key={h} value={h}>{h.replace(/_/g, ' ')}</option>)}
                   </select>
                 </div>
-                <div className="form-field">
-                  <label>Assigned Lead</label>
-                  <input value={projectForm.assigned_lead} onChange={(e) => setProjectForm((f) => ({ ...f, assigned_lead: e.target.value }))} />
+                <div className="od-field">
+                  <label className="od-field-label">Assigned Lead</label>
+                  <input className="od-field-input" value={projectForm.assigned_lead} onChange={(e) => setProjectForm((f) => ({ ...f, assigned_lead: e.target.value }))} placeholder="Name" />
                 </div>
-                <div className="form-field">
-                  <label>Est. Go-Live</label>
-                  <input type="date" value={projectForm.estimated_go_live} onChange={(e) => setProjectForm((f) => ({ ...f, estimated_go_live: e.target.value }))} />
+                <div className="od-field">
+                  <label className="od-field-label">Est. Go-Live</label>
+                  <input className="od-field-input" type="date" value={projectForm.estimated_go_live} onChange={(e) => setProjectForm((f) => ({ ...f, estimated_go_live: e.target.value }))} />
                 </div>
-                <div className="form-field">
-                  <label>Notes</label>
-                  <textarea rows={3} value={projectForm.notes} onChange={(e) => setProjectForm((f) => ({ ...f, notes: e.target.value }))} />
+                <div className="od-field">
+                  <label className="od-field-label">Notes</label>
+                  <textarea className="od-field-input od-field-textarea" rows={3} value={projectForm.notes} onChange={(e) => setProjectForm((f) => ({ ...f, notes: e.target.value }))} />
                 </div>
                 <div className="od-edit-actions">
                   <Button variant="ghost" size="sm" icon={<X size={12} />} onClick={() => setEditingProject(false)}>Cancel</Button>
@@ -260,11 +279,11 @@ export default function OnboardingDetail() {
             )}
           </div>
 
-          {/* Blockers panel */}
+          {/* Blockers card */}
           {blockers.length > 0 && (
             <div className="od-card od-card--danger">
-              <div className="od-card-title">
-                <ShieldAlert size={13} style={{ color: 'var(--red)' }} /> Open Blockers
+              <div className="od-card-title od-card-title--danger">
+                <ShieldAlert size={13} /> {blockers.length} Open Blocker{blockers.length > 1 ? 's' : ''}
               </div>
               <ul className="od-blocker-list">
                 {blockers.map((t) => (
@@ -278,10 +297,13 @@ export default function OnboardingDetail() {
           )}
         </div>
 
-        {/* ── Right: phases + tasks ── */}
+        {/* ── Main: phases & tasks ── */}
         <div className="od-main">
           <div className="od-phases-header">
-            <span className="od-section-title">Phases & Tasks</span>
+            <div>
+              <span className="od-section-title">Phases &amp; Tasks</span>
+              <span className="od-phase-total-badge">{phases.length} phase{phases.length !== 1 ? 's' : ''}</span>
+            </div>
             <Button variant="ghost" size="sm" icon={<Plus size={12} />} onClick={() => setAddPhaseOpen(true)}>
               Add Phase
             </Button>
@@ -289,59 +311,133 @@ export default function OnboardingDetail() {
 
           {phases.length === 0 ? (
             <div className="od-empty-phases">
-              <p>No phases yet. Add the first phase to get started.</p>
+              <Plus size={22} className="od-empty-icon" />
+              <p>No phases yet.</p>
+              <span>Add the first phase to start tracking progress.</span>
             </div>
           ) : (
-            phases.map((phase) => {
-              const isOpen = expandedPhases[phase.id] !== false;
-              const tasks  = phase.tasks || [];
-              const done   = tasks.filter((t) => t.status === 'COMPLETED').length;
+            phases.map((phase, phaseIndex) => {
+              const isOpen   = expandedPhases[phase.id] !== false;
+              const tasks    = phase.tasks || [];
+              const done     = tasks.filter((t) => t.status === 'COMPLETED').length;
+              const phasePct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+              const statusKey = (phase.status || 'NOT_STARTED').toLowerCase().replace(/_/g, '-');
               return (
-                <div key={phase.id} className="od-phase">
+                <div key={phase.id} className={`od-phase od-phase--${statusKey}`}>
+
+                  {/* ── Phase header ── */}
                   <div className="od-phase-header" onClick={() => togglePhase(phase.id)}>
-                    <span className="od-phase-toggle">
-                      {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                    <div className={`od-phase-num od-phase-num--${statusKey}`}>
+                      {phaseIndex + 1}
+                    </div>
+
+                    <div className="od-phase-info">
+                      <div className="od-phase-name-row">
+                        <span className="od-phase-name">{phase.name}</span>
+                        {phase.status === 'COMPLETED' && (
+                          <CheckCircle2 size={14} className="od-phase-done-icon" />
+                        )}
+                      </div>
+                      <div className="od-phase-sub">
+                        {phase.due_date && (
+                          <span className="od-phase-sub-item">
+                            <CalendarDays size={10} /> Due {shortDate(phase.due_date)}
+                          </span>
+                        )}
+                        <span className="od-phase-sub-item">
+                          {phasePct}% complete
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="od-phase-right" onClick={(e) => e.stopPropagation()}>
+                      <span className="od-phase-count">
+                        {done}/{tasks.length}
+                      </span>
+                      <select
+                        className={`od-phase-status-select od-phase-status-select--${statusKey}`}
+                        value={phase.status}
+                        onChange={(e) => updatePhaseMut.mutate({ phaseId: phase.id, data: { status: e.target.value } })}
+                      >
+                        {PHASE_STATUSES.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                      </select>
+                    </div>
+
+                    <span className={`od-phase-chevron${isOpen ? ' od-phase-chevron--open' : ''}`}>
+                      <ChevronRight size={15} />
                     </span>
-                    <span className="od-phase-name">{phase.name}</span>
-                    <span className="od-phase-meta">
-                      {done}/{tasks.length} tasks
-                      {phase.due_date && <> · <CalendarDays size={10} /> {shortDate(phase.due_date)}</>}
-                    </span>
-                    <Badge status={phase.status} />
-                    <select
-                      className="od-phase-status-select"
-                      value={phase.status}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        updatePhaseMut.mutate({ phaseId: phase.id, data: { status: e.target.value } });
-                      }}
-                    >
-                      {PHASE_STATUSES.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
-                    </select>
                   </div>
 
+                  {/* ── Progress bar ── */}
+                  <div className="od-phase-bar-wrap">
+                    <div className="od-phase-bar-fill" style={{ width: `${phasePct}%` }} />
+                  </div>
+
+                  {/* ── Task list ── */}
                   {isOpen && (
                     <div className="od-task-list">
-                      {tasks.map((task) => (
-                        <div key={task.id} className={`od-task ${task.is_blocker ? 'od-task--blocker' : ''}`}>
-                          <span className="od-task-status-icon">{TASK_ICONS[task.status] || TASK_ICONS.TODO}</span>
-                          <div className="od-task-body">
-                            <span className="od-task-title">{task.title}</span>
-                            {task.assigned_to && <span className="od-task-assignee"><User size={10} />{task.assigned_to}</span>}
-                          </div>
-                          {task.is_blocker && task.status !== 'COMPLETED' && (
-                            <span className="od-task-blocker-tag">blocker</span>
-                          )}
-                          <select
-                            className="od-task-status-select"
-                            value={task.status}
-                            onChange={(e) => updateTaskMut.mutate({ taskId: task.id, data: { status: e.target.value } })}
-                          >
-                            {TASK_STATUSES.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
-                          </select>
+                      {tasks.length === 0 ? (
+                        <div className="od-task-empty">
+                          No tasks in this phase yet.
                         </div>
-                      ))}
+                      ) : (
+                        <div className="od-task-rows">
+                          {tasks.map((task, taskIndex) => {
+                            const isDone    = task.status === 'COMPLETED';
+                            const isBlocker = task.is_blocker && !isDone;
+                            const tKey      = task.status.toLowerCase().replace(/_/g, '-');
+                            return (
+                              <div
+                                key={task.id}
+                                className={`od-task od-task--${tKey}${isBlocker ? ' od-task--blocker' : ''}`}
+                              >
+                                {/* Timeline connector */}
+                                <div className="od-task-timeline-col">
+                                  <div className={`od-task-dot od-task-dot--${tKey}`} />
+                                  {taskIndex < tasks.length - 1 && (
+                                    <div className="od-task-line" />
+                                  )}
+                                </div>
+
+                                {/* Content */}
+                                <div className="od-task-content">
+                                  <div className="od-task-row1">
+                                    <span className={`od-task-name${isDone ? ' od-task-name--done' : ''}`}>
+                                      {task.title}
+                                    </span>
+                                    {isBlocker && (
+                                      <span className="od-task-blocker-chip">⚠ Blocker</span>
+                                    )}
+                                  </div>
+                                  {(task.assigned_to || task.due_date) && (
+                                    <div className="od-task-meta">
+                                      {task.assigned_to && (
+                                        <span className="od-task-meta-item">
+                                          <User size={9} />{task.assigned_to}
+                                        </span>
+                                      )}
+                                      {task.due_date && (
+                                        <span className="od-task-meta-item">
+                                          <CalendarDays size={9} />{shortDate(task.due_date)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Status select */}
+                                <select
+                                  className={`od-task-status-select od-task-status-select--${tKey}`}
+                                  value={task.status}
+                                  onChange={(e) => updateTaskMut.mutate({ taskId: task.id, data: { status: e.target.value } })}
+                                >
+                                  {TASK_STATUSES.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                                </select>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                       <button
                         className="od-add-task-btn"
                         onClick={() => { setAddTaskPhase(phase.id); setTaskForm(EMPTY_TASK); }}

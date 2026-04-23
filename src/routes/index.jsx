@@ -33,6 +33,9 @@ import ClientOnboarding from '../pages/client/ClientOnboarding';
 import ClientAccount from '../pages/client/ClientAccount';
 import ClientTicketDetail from '../pages/client/ClientTicketDetail';
 
+// Shared
+import NotificationsPage from '../pages/shared/NotificationsPage';
+
 const INTERNAL_ROLES = ['AGENT', 'LEAD', 'ADMIN'];
 const CLIENT_ROLES = ['CLIENT_ADMIN', 'CLIENT_USER'];
 const ALL_ROLES = [...INTERNAL_ROLES, ...CLIENT_ROLES];
@@ -85,6 +88,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      { path: 'notifications', element: <NotificationsPage /> },
     ],
   },
   {
@@ -103,7 +107,8 @@ const router = createBrowserRouter([
       { path: 'releases', element: <ClientReleaseNotes /> },
       { path: 'roadmap', element: <ClientRoadmap /> },
       { path: 'onboarding', element: <ClientOnboarding /> },
-      { path: 'account',    element: <ProtectedRoute allowedRoles={['CLIENT_ADMIN']}><ClientAccount /></ProtectedRoute> },
+      { path: 'account',       element: <ProtectedRoute allowedRoles={['CLIENT_ADMIN']}><ClientAccount /></ProtectedRoute> },
+      { path: 'notifications', element: <NotificationsPage /> },
     ],
   },
   {

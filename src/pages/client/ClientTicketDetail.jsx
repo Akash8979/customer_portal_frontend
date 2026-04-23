@@ -60,6 +60,7 @@ export default function ClientTicketDetail() {
     mutationFn: (data) => updateTicket(id, data),
     onSuccess: () => {
       qc.invalidateQueries(['ticket', id]);
+      qc.invalidateQueries(['ticket-history', id]);
       addToast({ type: 'success', message: 'Ticket updated.' });
     },
     onError: () => addToast({ type: 'error', message: 'Failed to save changes.' }),
