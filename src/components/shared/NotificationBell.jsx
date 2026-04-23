@@ -27,7 +27,7 @@ export default function NotificationBell() {
   const prevCount = useRef(null);   // tracks unread count between polls
   const navigate  = useNavigate();
 
-  const { notifications, unreadCount, setNotifications, markAllRead, markOneRead, addToast } =
+  const { notifications, unreadCount, setNotifications, markAllRead, markOneRead, addToast, user } =
     useAppStore();
 
   // ── Fetch & poll every 30 s ──────────────────────────────────────────────
@@ -47,16 +47,19 @@ export default function NotificationBell() {
       }
       prevCount.current = newUnread;
       setNotifications(list);
-    } catch {
-      // silently ignore
+    } catch (err) {
+      console.error('[NotificationBell] fetch failed:', err?.response?.status, err?.message);
     }
   }
 
+  const userId = user?.user_id;
+
   useEffect(() => {
+    prevCount.current = null;
     fetchNotifs();
     const timer = setInterval(fetchNotifs, 30_000);
     return () => clearInterval(timer);
-  }, []);
+  }, [userId]);
 
   // ── Close panel on outside click ─────────────────────────────────────────
   useEffect(() => {

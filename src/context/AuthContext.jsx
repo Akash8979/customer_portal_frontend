@@ -25,7 +25,11 @@ export function AuthProvider({ children }) {
     const { tokens, user } = data;
     localStorage.setItem('access_token', tokens.access);
     localStorage.setItem('refresh_token', tokens.refresh);
-    if (user.tenant_id) localStorage.setItem('tenant_id', user.tenant_id);
+    if (user.tenant_id) {
+      localStorage.setItem('tenant_id', user.tenant_id);
+    } else {
+      localStorage.removeItem('tenant_id');
+    }
     localStorage.setItem('user', JSON.stringify(user));
     setUser(user);
     return user;
