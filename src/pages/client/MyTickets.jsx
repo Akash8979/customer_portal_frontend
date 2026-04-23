@@ -60,7 +60,7 @@ export default function MyTickets() {
           value={filters.status}
           onChange={(v) => setFilter('status', v)}
           options={STATUS_OPTIONS}
-          placeholder="All Statuses"
+          placeholder="All Status"
         />
         <FilterSelect
           value={filters.category}

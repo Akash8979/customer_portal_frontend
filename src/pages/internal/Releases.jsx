@@ -17,7 +17,7 @@ import './Releases.css';
 const PAGE_SIZE = 10;
 
 const STATUS_OPTIONS = [
-  { value: '', label: 'All Statuses' },
+  { value: '', label: 'All Status' },
   { value: 'DRAFT', label: 'Draft' },
   { value: 'IN_TESTING', label: 'In Testing' },
   { value: 'PUBLISHED', label: 'Published' },
@@ -142,7 +142,7 @@ export default function Releases() {
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
-        <FilterSelect value={statusFilter} options={STATUS_OPTIONS} onChange={(v) => { setStatus(v); setPage(1); }} placeholder="All Statuses" />
+        <FilterSelect value={statusFilter} options={STATUS_OPTIONS} onChange={(v) => { setStatus(v); setPage(1); }} placeholder="All Status" />
         <FilterSelect value={typeFilter}   options={TYPE_OPTIONS}   onChange={(v) => { setType(v);   setPage(1); }} placeholder="All Types" />
         {hasFilters && (
           <button className="rl-clear-btn" onClick={() => { setSearch(''); setStatus(''); setType(''); setPage(1); }}>

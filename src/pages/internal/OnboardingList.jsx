@@ -27,7 +27,7 @@ const HEALTH_OPTIONS = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: '',            label: 'All Statuses' },
+  { value: '',            label: 'All Status' },
   { value: 'NOT_STARTED', label: 'Not Started' },
   { value: 'IN_PROGRESS', label: 'In Progress' },
   { value: 'ON_TRACK',    label: 'On Track' },
@@ -187,7 +187,7 @@ export default function OnboardingList() {
           />
         </div>
         <FilterSelect value={healthFilter} options={HEALTH_OPTIONS} onChange={(v) => { setHealth(v); setPage(1); }} placeholder="All Health" />
-        <FilterSelect value={statusFilter} options={STATUS_OPTIONS} onChange={(v) => { setStatus(v); setPage(1); }} placeholder="All Statuses" />
+        <FilterSelect value={statusFilter} options={STATUS_OPTIONS} onChange={(v) => { setStatus(v); setPage(1); }} placeholder="All Status" />
         {hasFilters && (
           <button className="ob-clear-btn" onClick={() => { setSearch(''); setHealth(''); setStatus(''); setPage(1); }}>
             Clear
