@@ -27,7 +27,8 @@ export default function TicketDetail() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const ai = useAI();
-  const { addToast } = useAppStore();
+  const { addToast, user } = useAppStore();
+  const canAssign = (user?.permissions || []).includes('TICKET_ASSIGN');
   const [activeTab, setActiveTab] = useState('comments');
 
   // Title / description edit
@@ -35,10 +36,6 @@ export default function TicketDetail() {
   const [draftTitle, setDraftTitle]     = useState('');
   const [editingDesc, setEditingDesc]   = useState(false);
   const [draftDesc, setDraftDesc]       = useState('');
-
-  // Assigned-to edit
-  const [editingAssigned, setEditingAssigned] = useState(false);
-  const [draftAssigned, setDraftAssigned]     = useState('');
 
   // Tags edit
   const [editingTags, setEditingTags] = useState(false);
@@ -50,6 +47,7 @@ export default function TicketDetail() {
     staleTime: 5 * 60 * 1000,
   });
   const userMap = Object.fromEntries(usersData.map((u) => [u.user_id, u.user_name]));
+  const agentUsers = usersData.filter((u) => ['AGENT', 'LEAD', 'ADMIN'].includes(u.role));
 
   const { data: ticket, isLoading } = useQuery({
     queryKey: ['ticket', id],
@@ -68,13 +66,10 @@ export default function TicketDetail() {
     retry: false,
   });
 
-  // Sync local text drafts when ticket data refreshes
+  // Sync tags draft when ticket data refreshes
   useEffect(() => {
-    if (ticket) {
-      setDraftAssigned(ticket.assigned_to || '');
-      setDraftTags((ticket.tags || []).join(', '));
-    }
-  }, [ticket?.assigned_to, ticket?.tags]);
+    if (ticket) setDraftTags((ticket.tags || []).join(', '));
+  }, [ticket?.tags]);
 
   const saveMut = useMutation({
     mutationFn: (data) => updateTicket(id, data),
@@ -118,14 +113,6 @@ export default function TicketDetail() {
     setEditingDesc(false);
   }
 
-  // Assigned-to handlers
-  function saveAssigned() {
-    if (draftAssigned !== (ticket.assigned_to || '')) {
-      updateField('assigned_to', draftAssigned || null);
-    }
-    setEditingAssigned(false);
-  }
-
   // Tags handlers
   function saveTags() {
     const tags = draftTags.split(',').map((t) => t.trim()).filter(Boolean);
@@ -137,9 +124,9 @@ export default function TicketDetail() {
     <div className="ctd-layout">
 
       {/* Floating AI button */}
-      <button className="ai-fab" onClick={() => ai.summariseThread(id)}>
+      {/* <button className="ai-fab" onClick={() => ai.summariseThread(id)}>
         ✦ AI Summary
-      </button>
+      </button> */}
 
       {/* ── LEFT — main ── */}
       <div className="ctd-main">
@@ -153,7 +140,7 @@ export default function TicketDetail() {
             <span className="ticket-id">#{ticket.id}</span>
             <Badge status={ticket.status} />
             {ticket.priority && <Badge priority={ticket.priority} />}
-            {ticket.is_escalated && <span className="escalated-badge">⚠ Escalated</span>}
+            {ticket.is_escalated && <span className="escalated-badge"> Escalated</span>}
             {ticket.sla?.resolution_due_at && (
               <SlaTimer deadline={ticket.sla.resolution_due_at} label="SLA" />
             )}
@@ -211,6 +198,28 @@ export default function TicketDetail() {
               <p className="ctd-desc">{ticket.description || <span className="dim-text">No description.</span>}</p>
             )}
           </div>
+
+          {/* Ticket attachments */}
+          {ticket.attachments?.length > 0 && (
+            <div className="ctd-ticket-attachments">
+              <span className="ctd-desc-label"><Paperclip size={12} /> Attachments</span>
+              <div className="ctd-attachment-list">
+                {ticket.attachments.map((a) => (
+                  <a
+                    key={a.id}
+                    className="ctd-attachment-chip"
+                    href={a.file_path}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={a.file_name}
+                  >
+                    <Paperclip size={11} />
+                    <span>{a.file_name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tabs */}
@@ -365,20 +374,21 @@ export default function TicketDetail() {
             </select>
 
             <span className="detail-key">Assigned</span>
-            {editingAssigned ? (
-              <input
-                autoFocus
-                className="ctd-field-input"
-                value={draftAssigned}
-                onChange={(e) => setDraftAssigned(e.target.value)}
-                onBlur={saveAssigned}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') saveAssigned();
-                  if (e.key === 'Escape') { setDraftAssigned(ticket.assigned_to || ''); setEditingAssigned(false); }
-                }}
-              />
+            {canAssign ? (
+              <select
+                className="ctd-field-select"
+                value={ticket.assigned_to || ''}
+                onChange={(e) => updateField('assigned_to', e.target.value || null)}
+              >
+                <option value="">— Unassigned —</option>
+                {agentUsers.map((u) => (
+                  <option key={u.user_id} value={u.email}>
+                    {u.user_name} ({u.role})
+                  </option>
+                ))}
+              </select>
             ) : (
-              <span className="ctd-field-clickable" onClick={() => setEditingAssigned(true)}>
+              <span className="ctd-field-value">
                 {ticket.assigned_to || <span className="ctd-field-empty">Unassigned</span>}
               </span>
             )}
@@ -398,7 +408,7 @@ export default function TicketDetail() {
                 checked={ticket.is_escalated || false}
                 onChange={(e) => updateField('is_escalated', e.target.checked)}
               />
-              <span>{ticket.is_escalated ? '⚠ Yes' : 'No'}</span>
+              {/* <span>{ticket.is_escalated ? 'Yes' : 'No'}</span> */}
             </label>
 
             <span className="detail-key">Tags</span>

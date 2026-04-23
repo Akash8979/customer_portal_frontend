@@ -116,7 +116,7 @@ export default function ClientTicketDetail() {
             <span className="ticket-id">#{ticket.id}</span>
             <Badge status={ticket.status} />
             {ticket.priority && <Badge priority={ticket.priority} />}
-            {ticket.is_escalated && <span className="escalated-badge">⚠ Escalated</span>}
+            {ticket.is_escalated && <span className="escalated-badge">Escalated</span>}
             {ticket.sla?.resolution_due_at && (
               <SlaTimer deadline={ticket.sla.resolution_due_at} label="SLA" />
             )}
@@ -174,6 +174,28 @@ export default function ClientTicketDetail() {
               <p className="ctd-desc">{ticket.description || <span className="dim-text">No description provided.</span>}</p>
             )}
           </div>
+
+          {/* Ticket attachments */}
+          {ticket.attachments?.length > 0 && (
+            <div className="ctd-ticket-attachments">
+              <span className="ctd-desc-label"><Paperclip size={12} /> Attachments</span>
+              <div className="ctd-attachment-list">
+                {ticket.attachments.map((a) => (
+                  <a
+                    key={a.id}
+                    className="ctd-attachment-chip"
+                    href={a.file_path}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={a.file_name}
+                  >
+                    <Paperclip size={11} />
+                    <span>{a.file_name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tabs: Comments | History */}
